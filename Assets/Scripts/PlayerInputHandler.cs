@@ -20,4 +20,10 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.started) controller.JumpStart();
         if (context.canceled) controller.JumpCancel();
     }
+
+    public void OnCrouch(CallbackContext context)
+    {
+        if (context.started) controller.CrouchStart();
+        if (context.canceled) controller.CrouchStop();
+    }
 }

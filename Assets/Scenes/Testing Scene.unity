@@ -206,7 +206,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.27735728, y: 0, z: 0, w: 0.96076685}
+  m_LocalRotation: {x: 0.3115482, y: 0, z: 0, w: 0.95023036}
   m_LocalPosition: {x: 0, y: 4.003529, z: -4.7685847}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -826,8 +826,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCam: {fileID: 1287907452}
   orientation: {fileID: 1950058259}
-  moveSpeedAccel: 20000
+  moveSpeedAccel: 350
   moveSpeedMax: 10
+  gravity: 120
   grounded: 0
   whatIsGround:
     serializedVersion: 2
@@ -836,9 +837,12 @@ MonoBehaviour:
   maxSlopeAngle: 35
   slideForce: 400
   slideCounterMovement: 0.2
+  crouchHeight: 1
   totalJumps: 1
-  jumpForce: 90
-  jumpCancelForce: 300
+  jumpForce: 100
+  jumpCancelForce: 900
+  coyoteTime: 0.15
+  jumpBufferTime: 0.15
 --- !u!114 &823412768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -978,7 +982,6 @@ GameObject:
   - component: {fileID: 1287907452}
   - component: {fileID: 1287907451}
   - component: {fileID: 1287907450}
-  - component: {fileID: 1287907449}
   - component: {fileID: 1287907453}
   - component: {fileID: 1287907448}
   m_Layer: 0
@@ -1040,19 +1043,6 @@ MonoBehaviour:
         DecelTime: 0
   PlayerIndex: -1
   AutoEnableInputs: 1
---- !u!114 &1287907449
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1287907447}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e8b78ac948f05a46a6d8339a503172b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LookAtOffset: {x: 0, y: 0.5, z: 0}
 --- !u!114 &1287907450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1067,7 +1057,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TargetOffset: {x: 0, y: 2, z: 0}
   TrackerSettings:
-    BindingMode: 4
+    BindingMode: 3
     PositionDamping: {x: 0, y: 2, z: 0}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
@@ -1167,7 +1157,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1287907447}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.27735728, y: 0, z: 0, w: 0.96076685}
+  m_LocalRotation: {x: 0.3115482, y: 0, z: 0, w: 0.95023036}
   m_LocalPosition: {x: 0, y: 4.003529, z: -4.7685847}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2111,7 +2101,7 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
-  - {fileID: 1287907452}
   - {fileID: 823412771}
+  - {fileID: 1287907452}
   - {fileID: 1880717708}
   - {fileID: 1331416803}
