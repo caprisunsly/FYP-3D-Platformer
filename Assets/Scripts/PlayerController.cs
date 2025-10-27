@@ -1,33 +1,24 @@
 using System.Collections;
-using UnityEditor;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] Transform playerCam;
-    [SerializeField] Transform orientation;
-    CapsuleCollider cl;
-    Rigidbody rb;
+    [SerializeField] public Transform playerCam { get; private set; }
+    [SerializeField] public Transform orientation { get; private set; }
+    public CapsuleCollider cl { get; private set; }
+    public Rigidbody rb { get; private set; }
 
     [Header("Movement")]
-    [SerializeField] float moveSpeedAccel = 4500;
+    [SerializeField] public float moveSpeedAccel { get; private set; }
     [SerializeField] float moveSpeedMax = 20;
 
     [SerializeField] float gravity;
-    [SerializeField] bool grounded;
+    public bool grounded { get; private set; }
     [SerializeField] LayerMask whatIsGround;
 
     [SerializeField] float counterMovement = 0.175f;
     float threshold = 0.01f;
     [SerializeField] float maxSlopeAngle = 35f;
-
-    [Space]
-    [Header("Crouch & Slide")]
-    [SerializeField] float slideForce = 400;
-    [SerializeField] float slideCounterMovement = 0.2f;
-    [SerializeField] float crouchHeight = 1;
-    float standardHeight = 2;
 
     [Space]
     [Header("Jumping")]
@@ -52,7 +43,6 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         cl = GetComponent<CapsuleCollider>();
-        standardHeight = cl.height;
     }
 
     void Start()
@@ -69,28 +59,6 @@ public class PlayerController : MonoBehaviour
     {
         rb.AddForce(Vector3.down * gravity); //extra gravity force
     }
-
-    public void CrouchStart()
-    {
-        cl.height = crouchHeight;
-        cl.center = new Vector3(0, -crouchHeight / 2, 0);
-        if (rb.linearVelocity.magnitude > 0.5f) //if the player is moving, boost them forward when they slide
-        {
-            if (grounded)
-            {
-                rb.AddForce(orientation.transform.forward * slideForce);
-            }
-        }
-    }
-
-    public void CrouchStop()
-    {
-        //check if there is enough height to stop crouching
-        //if not, wait a frame and try again
-        cl.height = standardHeight;
-        cl.center = Vector3.zero;
-    }
-
 
     public void Movement(Vector2 dir)
     {
@@ -121,14 +89,8 @@ public class PlayerController : MonoBehaviour
             if (dir.y > 0 && mag.y > moveSpeedMax) appliedDir.y = 0;
             if (dir.y < 0 && mag.y < -moveSpeedMax) appliedDir.y = 0;
 
-            //Some multipliers
+            //Some multipliers for later
             float multiplier = 1f, multiplierV = 1f;
-
-            // Movement in air
-            if (!grounded)
-            {
-
-            }
 
             // Movement while sliding
             if (grounded && crouching) multiplierV = 0f; //prevents the player from moving forward and backward while sliding
@@ -143,15 +105,9 @@ public class PlayerController : MonoBehaviour
         c_movement = null;
     }
 
-    /*        //If sliding down a ramp, add force down so player stays grounded and also builds speed
-            if (crouching && grounded && readyToJump)
-            {
-                rb.AddForce(Vector3.down * 3000);
-                return;
-            }*/
-
     public void JumpStart()
     {
+        jumping = true;
         if (c_jumpBuffer != null)
         {
             StopCoroutine(c_jumpBuffer);
@@ -168,7 +124,14 @@ public class PlayerController : MonoBehaviour
             time += Time.deltaTime;
             yield return null;
         }
-        if (time < jumpBufferTime) Jump();
+        if (time < jumpBufferTime)
+        {
+            Jump();
+            if (!jumping) //if the player isnt holding jump after a buffered jump
+            {
+                JumpCancel();
+            }
+        }
         c_jumpBuffer = null;
     }
 
@@ -178,7 +141,6 @@ public class PlayerController : MonoBehaviour
         {
             readyToJump = false;
             jumpsRemaining--;
-            jumping = true;
 
             //Add jump forces
             rb.AddForce(Vector2.up * jumpForce /* * .75 */, ForceMode.Impulse);
@@ -209,7 +171,7 @@ public class PlayerController : MonoBehaviour
 
     public IEnumerator C_JumpCancel()
     {
-        while (rb.linearVelocity.y > 0 && !jumping)
+        while (rb.linearVelocity.y > 0)
         {
             rb.AddForce(Vector3.down * jumpCancelForce);
             yield return new WaitForFixedUpdate();
@@ -230,13 +192,6 @@ public class PlayerController : MonoBehaviour
     private void CounterMovement(float x, float y, Vector2 mag)
     {
         if (!grounded || jumping) return;
-
-        //Slow down sliding
-        if (crouching)
-        {
-            rb.AddForce(moveSpeedAccel * -rb.linearVelocity.normalized * slideCounterMovement);
-            return;
-        }
 
         //Counter movement
         if (Mathf.Abs(mag.x) > threshold && Mathf.Abs(x) < 0.05f || (mag.x < -threshold && x > 0) || (mag.x > threshold && x < 0))
