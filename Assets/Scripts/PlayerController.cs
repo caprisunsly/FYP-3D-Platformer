@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] public Transform playerCam { get; private set; }
-    [SerializeField] public Transform orientation { get; private set; }
+    [field: SerializeField] public Transform playerCam { get; private set; }
+    [field: SerializeField] public Transform orientation { get; private set; }
+    [SerializeField] Transform playerModel;
     public CapsuleCollider cl { get; private set; }
     public Rigidbody rb { get; private set; }
 
     [Header("Movement")]
-    [SerializeField] public float moveSpeedAccel { get; private set; }
+    [field: SerializeField] public float moveSpeedAccel { get; private set; }
     [SerializeField] float moveSpeedMax = 20;
-
     [SerializeField] float gravity;
     public bool grounded { get; private set; }
     [SerializeField] LayerMask whatIsGround;
@@ -19,12 +19,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float counterMovement = 0.175f;
     float threshold = 0.01f;
     [SerializeField] float maxSlopeAngle = 35f;
+    [SerializeField] float characterRotationSpeed;
+
 
     [Space]
     [Header("Jumping")]
-    //Jumping
-    private bool readyToJump = true;
     [SerializeField] int totalJumps;
+    private bool readyToJump = true;
     int jumpsRemaining = 1;
     float jumpCooldown = 0.25f;
 
@@ -35,6 +36,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float coyoteTime;
     [SerializeField] float jumpBufferTime = .2f;
     Coroutine c_movement, c_jumpCancel, c_jumpBuffer;
+
+    //Some multipliers for other scripts to use
+    float multiplier = 1f;
+    [HideInInspector] public float multiplierV = 1f, multiplierH = 1f;
 
     //Sliding
     private Vector3 normalVector = Vector3.up;
@@ -58,6 +63,11 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         rb.AddForce(Vector3.down * gravity); //extra gravity force
+        playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z)), characterRotationSpeed);
+        if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > moveSpeedMax && grounded)
+        {
+            rb.AddForce(moveSpeedAccel * 1.25f * new Vector3(-rb.linearVelocity.normalized.x, 0, -rb.linearVelocity.normalized.z));
+        }
     }
 
     public void Movement(Vector2 dir)
@@ -89,15 +99,11 @@ public class PlayerController : MonoBehaviour
             if (dir.y > 0 && mag.y > moveSpeedMax) appliedDir.y = 0;
             if (dir.y < 0 && mag.y < -moveSpeedMax) appliedDir.y = 0;
 
-            //Some multipliers for later
-            float multiplier = 1f, multiplierV = 1f;
-
-            // Movement while sliding
-            if (grounded && crouching) multiplierV = 0f; //prevents the player from moving forward and backward while sliding
+            if (!grounded) multiplier = .7f;
 
             //Apply forces to move player
             rb.AddForce(orientation.transform.forward * appliedDir.y * moveSpeedAccel * multiplier * multiplierV);
-            rb.AddForce(orientation.transform.right * appliedDir.x * moveSpeedAccel * multiplier);
+            rb.AddForce(orientation.transform.right * appliedDir.x * moveSpeedAccel * multiplier * multiplierH);
 
             if (dir == Vector2.zero && rb.linearVelocity.magnitude == 0) moving = false;
             yield return new WaitForFixedUpdate();
@@ -129,7 +135,7 @@ public class PlayerController : MonoBehaviour
             Jump();
             if (!jumping) //if the player isnt holding jump after a buffered jump
             {
-                JumpCancel();
+                Invoke(nameof(JumpCancel), 0.15f);
             }
         }
         c_jumpBuffer = null;
@@ -173,7 +179,7 @@ public class PlayerController : MonoBehaviour
     {
         while (rb.linearVelocity.y > 0)
         {
-            rb.AddForce(Vector3.down * jumpCancelForce);
+            rb.AddForce(new Vector3(0, -rb.linearVelocity.y, 0) * jumpCancelForce);
             yield return new WaitForFixedUpdate();
         }
         c_jumpCancel = null;
@@ -203,13 +209,13 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(moveSpeedAccel * orientation.transform.forward * -mag.y * counterMovement);
         }
 
-        //Limit diagonal running. This will also cause a full stop if sliding fast and un-crouching, so not optimal.
+/*        //Limit diagonal running. This will also cause a full stop if sliding fast and un-crouching, so not optimal.
         if (Mathf.Sqrt((Mathf.Pow(rb.linearVelocity.x, 2) + Mathf.Pow(rb.linearVelocity.z, 2))) > moveSpeedMax)
         {
             float fallspeed = rb.linearVelocity.y;
             Vector3 n = rb.linearVelocity.normalized * moveSpeedMax;
             rb.linearVelocity = new Vector3(n.x, fallspeed, n.z);
-        }
+        }*/
     }
 
     /// <summary>
@@ -225,9 +231,9 @@ public class PlayerController : MonoBehaviour
         float u = Mathf.DeltaAngle(lookAngle, moveAngle);
         float v = 90 - u;
 
-        float magnitue = rb.linearVelocity.magnitude;
-        float yMag = magnitue * Mathf.Cos(u * Mathf.Deg2Rad);
-        float xMag = magnitue * Mathf.Cos(v * Mathf.Deg2Rad);
+        float magnitude = rb.linearVelocity.magnitude;
+        float yMag = magnitude * Mathf.Cos(u * Mathf.Deg2Rad);
+        float xMag = magnitude * Mathf.Cos(v * Mathf.Deg2Rad);
 
         return new Vector2(xMag, yMag);
     }
@@ -239,6 +245,7 @@ public class PlayerController : MonoBehaviour
     }
 
     bool oldGrounded;
+    private float moveSpeedAccel1;
 
     /// <summary>
     /// Handle ground detection

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading;
 using UnityEngine;
 
 public class MoveSlide : MoveModule
@@ -9,15 +10,21 @@ public class MoveSlide : MoveModule
     [Header("Crouch & Slide")]
     [SerializeField] bool canSlide = true;
     bool crouching;
-    [SerializeField] float slideForce = 400;
+    [SerializeField] float slideAccel = 400;
+    [SerializeField] float slideMaxSpeed = 400;
+    [SerializeField] float slideTime = 400;
     [SerializeField] float slideCounterMovement = 0.2f;
+
+    [SerializeField] float crouchDelay;
     [SerializeField] float crouchHeight = 1;
+    bool canChangeState;
     float standardHeight = 2;
     Coroutine c_checkCrouchExit;
 
     private void Start()
     {
         controller = GetComponent<PlayerController>();
+        standardHeight = controller.cl.height;
     }
 
  /*   private void FixedUpdate()
@@ -32,6 +39,11 @@ public class MoveSlide : MoveModule
 */
     public override void InputStarted()
     {
+/*        StartCoroutine(C_CrouchStart());
+*/    }
+
+/*    IEnumerator C_CrouchStart()
+    {
         if (c_checkCrouchExit != null)
         {
             StopCoroutine(c_checkCrouchExit);
@@ -40,13 +52,21 @@ public class MoveSlide : MoveModule
         crouching = true;
         controller.cl.height = crouchHeight;
         controller.cl.center = new Vector3(0, -crouchHeight / 2, 0);
+    }*/
+
+    IEnumerator C_Slide()
+    {
+        float time = 0;
         if (controller.rb.linearVelocity.magnitude > 0.5f && canSlide) //if the player is moving, boost them forward
         {
-            if (controller.grounded)
+            while (controller.grounded && time < slideTime)
             {
-                controller.rb.AddForce(controller.orientation.transform.forward * slideForce);
+                controller.rb.AddForce(controller.orientation.transform.forward * slideAccel);
+                time += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
             }
         }
+
     }
 
     public override void InputCancelled()
