@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public float moveSpeedAccel { get; private set; }
     [field: SerializeField] public float moveSpeedMax  { get; private set; }
     [field: SerializeField] public float gravity { get; private set; }
+
     public bool grounded { get; private set; }
     bool oldGrounded;
     [SerializeField] LayerMask whatIsGround;
@@ -30,13 +32,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int totalJumps;
     public int jumpsRemaining;
 
-    [SerializeField] float coyoteTime;
-    [SerializeField] float jumpBufferTime = .2f;
-
+    [SerializeField] float coyoteTime;    
     //Sliding
     private Vector3 normalVector = Vector3.up;
 
     public Vector2 dir;
+
+
+    public static event Action EnterGrounded;
+    public static event Action ExitGrounded;
 
     void Awake()
     {
@@ -143,7 +147,7 @@ public class PlayerController : MonoBehaviour
                     jumpsRemaining = totalJumps;
                     CancelInvoke(nameof(LeaveGround));
                 }
-                //
+                EnterGrounded.Invoke();
                 break;
             }
         }
@@ -153,6 +157,6 @@ public class PlayerController : MonoBehaviour
     private void LeaveGround() //acts also as a coyote time.
     {
         grounded = false;
-        //fire event since we arent grounded anymore. also acts like coyote time
+        ExitGrounded.Invoke();
     }
 }

@@ -4,17 +4,7 @@ using UnityEngine;
 public class State_Standing : Base_State
 {
     Coroutine c_movement;
-    [Space]
-    [Header("Jumping")]
-    private bool readyToJump = true;
-    float jumpCooldown = 0.25f;
-
-    [SerializeField] float jumpForce = 550f;
-    [SerializeField] float jumpCancelForce = 200f;
-
-    bool moving = true, jumping;
-    [SerializeField] float jumpBufferTime = .2f;
-    Coroutine c_jumpCancel, c_jumpBuffer;
+    bool moving = true;
 
     //Some multipliers for other scripts to use
     float multiplier = 1f;
@@ -26,7 +16,7 @@ public class State_Standing : Base_State
 
     public override void StateExit()
     {
-        StopCoroutine(c_movement);
+        if (c_movement != null) StopCoroutine(c_movement);
         c_movement = null;
     }
 
@@ -86,81 +76,7 @@ public class State_Standing : Base_State
 
     public override void JumpStart()
     {
-        jumping = true;
-        if (c_jumpBuffer != null)
-        {
-            StopCoroutine(c_jumpBuffer);
-            c_jumpBuffer = null;
-        }
-        c_jumpBuffer = StartCoroutine(JumpBuffer());
-    }
-
-    IEnumerator JumpBuffer()
-    {
-        float time = 0;
-        while (!pc.grounded)
-        {
-            time += Time.deltaTime;
-            yield return null;
-        }
-        if (time < jumpBufferTime)
-        {
-            Jump();
-            if (!jumping) //if the player isnt holding jump after a buffered jump
-            {
-                Invoke(nameof(JumpCancel), 0.02f);
-            }
-        }
-        c_jumpBuffer = null;
-    }
-
-    private void Jump()
-    {
-        if (pc.grounded && readyToJump && pc.jumpsRemaining > 0)
-        {
-            readyToJump = false;
-            pc.jumpsRemaining--;
-
-            //Add jump forces
-            pc.rb.AddForce(Vector2.up * jumpForce /* * .75 */, ForceMode.Impulse);
-            //sends the player at the angle of the ground they are standing on
-            /*            rb.AddForce(normalVector * jumpForce * 0.25f, ForceMode.Impulse);*/
-
-            //If jumping while falling, reset y velocity. just in case i add a double jump
-            Vector3 vel = pc.rb.linearVelocity;
-            if (pc.rb.linearVelocity.y < 0.5f)
-                pc.rb.linearVelocity = new Vector3(vel.x, 0, vel.z);
-            else if (pc.rb.linearVelocity.y > 0)
-                pc.rb.linearVelocity = new Vector3(vel.x, vel.y / 2, vel.z);
-
-            Invoke(nameof(ResetJump), jumpCooldown);
-        }
-    }
-
-    public override void JumpCancel()
-    {
-        jumping = false;
-        if (c_jumpCancel != null)
-        {
-            StopCoroutine(c_jumpCancel);
-            c_jumpCancel = null;
-        }
-        c_jumpCancel = StartCoroutine(C_JumpCancel());
-    }
-
-    public IEnumerator C_JumpCancel()
-    {
-        while (pc.rb.linearVelocity.y > 0)
-        {
-            pc.rb.AddForce(new Vector3(0, -pc.rb.linearVelocity.y, 0) * jumpCancelForce);
-            yield return new WaitForFixedUpdate();
-        }
-        c_jumpCancel = null;
-    }
-
-    private void ResetJump()
-    {
-        readyToJump = true;
+        sm.ChangeState(sm.stateJumping);
     }
 
     public override void CrouchStart()

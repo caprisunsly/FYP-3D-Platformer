@@ -40,9 +40,4 @@ public class PlayerInputHandler : MonoBehaviour
     {
 
     }
-
-    public void OnSpace(CallbackContext context)
-    {
-
-    }
 }

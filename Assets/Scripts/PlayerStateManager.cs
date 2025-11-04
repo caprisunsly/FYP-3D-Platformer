@@ -7,14 +7,28 @@ public class PlayerStateManager : MonoBehaviour
     public State_Standing stateStanding { get; private set; }
     public State_Crouching stateCrouching { get; private set; }
     public State_Sliding stateSliding { get; private set; }
+    public State_Jumping stateJumping { get; private set; }
     public float transitionTimer { get; private set; }
     Coroutine c_transitionTimer, c_waitForTransition;
+
+    private void OnEnable()
+    {
+        PlayerController.EnterGrounded += EnterGround;
+        PlayerController.ExitGrounded += ExitGround;
+    }
+
+    private void OnDisable()
+    {
+        PlayerController.EnterGrounded -= EnterGround;
+        PlayerController.ExitGrounded -= ExitGround;
+    }
 
     private void Start()
     {
         stateStanding = GetComponent<State_Standing>();
         stateCrouching = GetComponent<State_Crouching>();
         stateSliding = GetComponent<State_Sliding>();
+        stateJumping = GetComponent<State_Jumping>();
         currentState = stateStanding;
         currentState.StateEntry();
     }
@@ -29,8 +43,19 @@ public class PlayerStateManager : MonoBehaviour
         currentState.StateFixedUpdate();
     }
 
+    void EnterGround()
+    {
+        currentState.GroundedStart();
+    }
+
+    void ExitGround()
+    {
+        currentState.GroundedEnd();
+    }
+
     public void ChangeState(Base_State newState)
     {
+
         if (c_waitForTransition != null)
         {
             StopCoroutine(c_waitForTransition);
@@ -38,9 +63,16 @@ public class PlayerStateManager : MonoBehaviour
         c_waitForTransition = StartCoroutine(C_WaitForTransition(newState));
     }
 
+/*    public void StopTransition()
+    {
+        StopCoroutine(c_transitionTimer);
+        c_transitionTimer = null;
+    }
+*/
     IEnumerator C_WaitForTransition(Base_State newState)
     {
         yield return new WaitUntil(() => c_transitionTimer == null);
+
         currentState.StateExit();
         currentState = newState;
         currentState.StateEntry();

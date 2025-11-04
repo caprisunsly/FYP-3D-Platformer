@@ -62,30 +62,13 @@ public abstract class Base_State : MonoBehaviour
 
     }
 
-
-    /*
-    public override void StateEntry()
+    public virtual void GroundedStart()
     {
-        base.StateEntry();
 
     }
 
-    public override void StateUpdate()
+    public virtual void GroundedEnd()
     {
-        base.StateUpdate();
 
     }
-
-    public override void StateFixedUpdate()
-    {
-        base.StateFixedUpdate();
-
-    }
-
-    public override void StateExit()
-    {
-        base.StateExit();
-
-    }
-*/
 }

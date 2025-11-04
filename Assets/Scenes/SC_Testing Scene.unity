@@ -173,7 +173,7 @@ MonoBehaviour:
   m_DecalLayerMask: 1
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 4}
-  m_Size: {x: 1.5, y: 1.5, z: 8}
+  m_Size: {x: 1.3, y: 1.3, z: 8}
   m_FadeFactor: 1
 --- !u!43 &281133155
 Mesh:
@@ -973,6 +973,7 @@ GameObject:
   - component: {fileID: 823412774}
   - component: {fileID: 823412775}
   - component: {fileID: 823412776}
+  - component: {fileID: 823412777}
   m_Layer: 3
   m_Name: Player Logic
   m_TagString: Player
@@ -1150,7 +1151,6 @@ MonoBehaviour:
   totalJumps: 1
   jumpsRemaining: 1
   coyoteTime: 0.25
-  jumpBufferTime: 0.25
   dir: {x: 0, y: 0}
 --- !u!114 &823412768
 MonoBehaviour:
@@ -1256,9 +1256,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  jumpForce: 140
-  jumpCancelForce: 300
-  jumpBufferTime: 0.25
 --- !u!114 &823412775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1291,6 +1288,22 @@ MonoBehaviour:
   slideMaxSpeed: 25
   slideTime: 0.7
   slideCounterMovement: 0.2
+--- !u!114 &823412777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823412765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0339baf371eb1c54e9a406b9e037ff3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <transitionTime>k__BackingField: 0
+  jumpForce: 160
+  jumpCancelForce: 200
+  jumpBufferTime: 0.2
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2473,7 +2486,6 @@ GameObject:
   - component: {fileID: 1522984080}
   - component: {fileID: 1522984083}
   - component: {fileID: 1522984082}
-  - component: {fileID: 1522984081}
   m_Layer: 0
   m_Name: forward
   m_TagString: Untagged
@@ -2496,29 +2508,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 600066974}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
---- !u!136 &1522984081
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1522984079}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &1522984082
 MeshRenderer:
   m_ObjectHideFlags: 0

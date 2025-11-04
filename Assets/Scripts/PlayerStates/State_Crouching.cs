@@ -30,7 +30,7 @@ public class State_Crouching : Base_State
         pc.cl.center = Vector3.zero;
         pc.playerModel.localScale = new Vector3(1, 1, 1);
         pc.playerModel.transform.localPosition = new Vector3(0, 0, 0);
-        StopCoroutine(c_movement);
+        if (c_movement != null) StopCoroutine(c_movement);
         c_movement = null;
     }
 
@@ -122,7 +122,7 @@ public class State_Crouching : Base_State
 
     public override void JumpStart()
     {
-/*        sm.ChangeState(sm.stateCrouchJump);
-*/    }
+        sm.ChangeState(sm.stateJumping);
+    }
 
 }
