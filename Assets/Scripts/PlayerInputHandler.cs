@@ -23,17 +23,27 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.started)
         {
             stateManager.currentState.JumpStart();
+            pc.jumpHeld = true;
         }
         if (context.canceled) 
         {
             stateManager.currentState.JumpCancel();
+            pc.jumpHeld = false;
         }
     }
 
     public void OnCrouch(CallbackContext context)
     {
-        if (context.started) stateManager.currentState.CrouchStart();
-        if (context.canceled) stateManager.currentState.CrouchCancel();
+        if (context.started)
+        {
+            stateManager.currentState.CrouchStart();
+            pc.crouchHeld = true;
+        }
+        if (context.canceled)
+        {
+            stateManager.currentState.CrouchCancel();
+            pc.crouchHeld = false;
+        }
     }
 
     public void OnShift(CallbackContext context)

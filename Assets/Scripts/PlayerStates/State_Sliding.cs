@@ -7,14 +7,12 @@ public class State_Sliding : Base_State
     [SerializeField] float slideMaxSpeed = 400;
     [SerializeField] float slideTime = 400;
     [SerializeField] float slideCounterMovement = 0.2f;
-    Vector3 slideDir;
 
     bool crouching = true;
 
     public override void StateEntry()
     {
         base.StateEntry();
-        slideDir = new Vector3(pc.dir.x, 0, pc.dir.y);
         pc.cl.height = pc.crouchingHeight;
         pc.cl.center = new Vector3(0, -pc.crouchingHeight / 2, 0);
         pc.playerModel.localScale = new Vector3(1, pc.crouchingHeight/2, 1);
@@ -31,21 +29,18 @@ public class State_Sliding : Base_State
         pc.playerModel.transform.localPosition = new Vector3(0, 0, 0);
     }
 
-    public override void Movement(Vector2 dir)
-    {
-        slideDir = new Vector3(dir.x, 0, dir.y);
-    }
-
     IEnumerator C_Sliding()
     {
         float time = 0;
+        Vector3 movement = Vector3.ClampMagnitude(pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x, 1);
         while (time < slideTime)
         {
             //if (!pc.grounded) sm.ChangeState(sm.stateFalling);
             //only apply the force if we're still below the max speed threshold
             if (pc.rb.linearVelocity.magnitude < slideMaxSpeed)
             {
-                pc.rb.AddForce(slideDir * slideAccel);
+                //Apply forces to move player
+                pc.rb.AddForce(movement * slideAccel);
             }
             time += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
@@ -67,5 +62,10 @@ public class State_Sliding : Base_State
     public override void CrouchStart()
     {
         crouching = true;
+    }
+
+    public override void GroundedEnd()
+    {
+        sm.ChangeState(sm.stateFalling);
     }
 }

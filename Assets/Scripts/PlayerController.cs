@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public float moveSpeedMax  { get; private set; }
     [field: SerializeField] public float gravity { get; private set; }
 
-    public bool grounded { get; private set; }
+    public bool grounded { get; private set; } = false;
     bool oldGrounded;
     [SerializeField] LayerMask whatIsGround;
 
@@ -33,14 +33,16 @@ public class PlayerController : MonoBehaviour
     public int jumpsRemaining;
 
     [SerializeField] float coyoteTime;    
-    //Sliding
-    private Vector3 normalVector = Vector3.up;
 
-    public Vector2 dir;
+    public Vector2 dir = Vector2.zero;
 
+    bool touchingFloor;
+    Coroutine c_coyote;
 
     public static event Action EnterGrounded;
     public static event Action ExitGrounded;
+
+    public bool crouchHeld, jumpHeld;
 
     void Awake()
     {
@@ -57,6 +59,8 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         CameraOrientation();
+
+        CheckGrounded();
     }
     private void FixedUpdate()
     {
@@ -71,19 +75,27 @@ public class PlayerController : MonoBehaviour
         Vector2 mag = FindVelRelativeToLook();
 
         //slows the player down if they arent inputting anything
-        CounterMovement(dir.x, dir.y, mag);
+        FrictionForce(mag);
     }
 
-    private void CounterMovement(float x, float y, Vector2 mag)
+    private void FrictionForce(Vector2 mag)
     {
         if (!grounded) return;
 
+        /*        //if the player is moving, reduce their speed relative to their current velocity????
+                Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                if (movement.magnitude > .1)
+                {
+                    rb.AddForce(-movement.normalized * moveSpeedAccel * .15f);
+                }*/
+
+
         //Counter movement
-        if (Mathf.Abs(mag.x) > 0.01f && Mathf.Abs(x) < 0.05f || (mag.x < -0.01f && x > 0) || (mag.x > 0.01f && x < 0))
+        if (Mathf.Abs(mag.x) > 0.01f && Mathf.Abs(dir.x) < 0.05f || (mag.x < -0.01f && dir.x > 0) || (mag.x > 0.01f && dir.x < 0))
         {
             rb.AddForce(moveSpeedAccel * orientation.transform.right * -mag.x * .175f);
         }
-        if (Mathf.Abs(mag.y) > 0.01f && Mathf.Abs(y) < 0.05f || (mag.y < -0.01f && y > 0) || (mag.y > 0.01f && y < 0))
+        if (Mathf.Abs(mag.y) > 0.01f && Mathf.Abs(dir.y) < 0.05f || (mag.y < -0.01f && dir.y > 0) || (mag.y > 0.01f && dir.y < 0))
         {
             rb.AddForce(moveSpeedAccel * orientation.transform.forward * -mag.y * .175f);
         }
@@ -94,11 +106,7 @@ public class PlayerController : MonoBehaviour
         orientation.transform.localRotation = Quaternion.Euler(0, playerCam.transform.localRotation.eulerAngles.y, 0);
     }
 
-    /// <summary>
-    /// Find the velocity relative to where the player is looking
-    /// Useful for vectors calculations regarding movement and limiting movement
-    /// </summary>
-    /// <returns></returns>
+    // Find the velocity relative to where the player is looking
     public Vector2 FindVelRelativeToLook()
     {
         float lookAngle = orientation.transform.eulerAngles.y;
@@ -120,9 +128,7 @@ public class PlayerController : MonoBehaviour
         return angle < maxSlopeAngle;
     }
 
-    /// <summary>
-    /// Handle ground detection
-    /// </summary>
+
     private void OnCollisionStay(Collision other)
     {
         //can potentially hijack this for wall collisions later if wall jumping is implemented or something similar
@@ -131,32 +137,51 @@ public class PlayerController : MonoBehaviour
         int layer = other.gameObject.layer;
         if (whatIsGround != (whatIsGround | (1 << layer))) return;
 
-        oldGrounded = grounded;
-
-        //Iterate through every collision in a physics update
+        //Iterate through every collision
         for (int i = 0; i < other.contactCount; i++) 
         {
             Vector3 normal = other.contacts[i].normal;
             //FLOOR
-            if (IsFloor(normal))
+            if (IsFloor(normal)) //is the normal of the contact point within the players walkable range
             {
-                grounded = true;
-                normalVector = normal;
-                if (oldGrounded != grounded)
-                {
-                    jumpsRemaining = totalJumps;
-                    CancelInvoke(nameof(LeaveGround));
-                }
-                EnterGrounded.Invoke();
+                touchingFloor = true;
                 break;
             }
         }
-        Invoke(nameof(LeaveGround), coyoteTime);
     }
 
-    private void LeaveGround() //acts also as a coyote time.
+    void CheckGrounded()
     {
+        oldGrounded = grounded;
+
+        if (touchingFloor)
+        {
+            grounded = true;
+            if (oldGrounded != grounded)
+            {
+                jumpsRemaining = totalJumps;
+                EnterGrounded.Invoke();
+            }
+            if (c_coyote != null)
+            {
+                StopCoroutine(c_coyote);
+                c_coyote = null;
+            }
+        }
+        else
+        {
+            if (c_coyote != null) return;
+            c_coyote = StartCoroutine(C_CoyoteTime());
+        }
+
+        touchingFloor = false;
+    }
+
+    private IEnumerator C_CoyoteTime()
+    {
+        yield return new WaitForSeconds(coyoteTime);
         grounded = false;
         ExitGrounded.Invoke();
+        c_coyote = null;
     }
 }

@@ -6,7 +6,7 @@ public abstract class Base_State : MonoBehaviour
     public PlayerStateManager sm { get; protected set; }
     [field: SerializeField] public float transitionTime { get; protected set; }
 
-    private void Start()
+    private void Awake()
     {
         pc = GetComponent<PlayerController>();
         sm = GetComponent<PlayerStateManager>();

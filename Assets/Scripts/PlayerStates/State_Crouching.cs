@@ -64,8 +64,10 @@ public class State_Crouching : Base_State
             if (dir.y < 0 && mag.y < -crouchMaxSpeed) appliedDir.y = 0;
 
             //Apply forces to move player
-            pc.rb.AddForce(pc.orientation.transform.forward * appliedDir.y * crouchAccel * multiplier);
-            pc.rb.AddForce(pc.orientation.transform.right * appliedDir.x * crouchAccel * multiplier);
+            Vector3 movement = Vector3.ClampMagnitude(pc.orientation.transform.forward * appliedDir.y + pc.orientation.transform.right * appliedDir.x, 1);
+
+            //Apply forces to move player
+            pc.rb.AddForce(movement * crouchAccel * multiplier);
 
             if (dir == Vector2.zero && pc.rb.linearVelocity.magnitude == 0) moving = false;
             yield return new WaitForFixedUpdate();
@@ -125,4 +127,8 @@ public class State_Crouching : Base_State
         sm.ChangeState(sm.stateJumping);
     }
 
+    public override void GroundedEnd()
+    {
+        sm.ChangeState(sm.stateFalling);
+    }
 }

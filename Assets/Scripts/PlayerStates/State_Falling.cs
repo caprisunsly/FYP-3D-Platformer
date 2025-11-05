@@ -1,24 +1,43 @@
 using System.Collections;
 using UnityEngine;
 
-public class State_Standing : Base_State
+public class State_Falling : Base_State
 {
-    Coroutine c_movement;
-    bool moving = true;
 
-    //Some multipliers for other scripts to use
-    float multiplier = 1f;
+    Coroutine c_jumpBuffer;
+    float jumpBufferTime;
+    [SerializeField] float airAccel = 300f;
+    bool moving;
+    Coroutine c_movement;
 
     public override void StateEntry()
     {
-        moving = true;
         Movement(pc.dir);
     }
 
     public override void StateExit()
     {
-        if (c_movement != null) StopCoroutine(c_movement);
-        c_movement = null;
+        if (c_movement != null)
+        {
+            StopCoroutine(c_movement);
+            c_movement = null;
+        }
+    }
+
+    IEnumerator JumpBuffer()
+    {
+        yield return new WaitForSeconds(jumpBufferTime);
+        c_jumpBuffer = null;
+    }
+
+    public override void JumpStart()
+    {
+        if (c_jumpBuffer != null)
+        {
+            StopCoroutine(c_jumpBuffer);
+            c_jumpBuffer = null;
+        }
+        c_jumpBuffer = StartCoroutine(JumpBuffer());
     }
 
     public override void Movement(Vector2 dir)
@@ -39,9 +58,9 @@ public class State_Standing : Base_State
             //Find actual velocity relative to where camera is looking
             Vector2 mag = pc.FindVelRelativeToLook();
 
-/*            //slows the player down if they arent inputting anything
-            CounterMovement(dir.x, dir.y, mag);*/
-
+            //slows the player down if they arent inputting anything
+            /*            CounterMovement(dir.x, dir.y, mag);
+            */
             //If speed is larger than maxspeed, cancel out the input so player doesn't go over max speed
             Vector2 appliedDir = dir;
 
@@ -50,10 +69,11 @@ public class State_Standing : Base_State
             if (dir.y > 0 && mag.y > pc.moveSpeedMax) appliedDir.y = 0;
             if (dir.y < 0 && mag.y < -pc.moveSpeedMax) appliedDir.y = 0;
 
+            //Apply forces to move player
             Vector3 movement = Vector3.ClampMagnitude(pc.orientation.transform.forward * appliedDir.y + pc.orientation.transform.right * appliedDir.x, 1);
 
             //Apply forces to move player
-            pc.rb.AddForce(movement * pc.moveSpeedAccel * multiplier);
+            pc.rb.AddForce(movement * airAccel);
 
             if (dir == Vector2.zero && pc.rb.linearVelocity.magnitude == 0) moving = false;
             yield return new WaitForFixedUpdate();
@@ -61,34 +81,21 @@ public class State_Standing : Base_State
         c_movement = null;
     }
 
-    private void CounterMovement(float x, float y, Vector2 mag)
+    public override void GroundedStart()
     {
-        if (!pc.grounded) return;
-
-        //Counter movement
-        if (Mathf.Abs(mag.x) > 0.01f && Mathf.Abs(x) < 0.05f || (mag.x < -0.01f && x > 0) || (mag.x > 0.01f && x < 0))
+        if (c_jumpBuffer != null)
         {
-            pc.rb.AddForce(pc.moveSpeedAccel * pc.orientation.transform.right * -mag.x * .175f);
+            sm.ChangeState(sm.stateJumping);
+            return;
         }
-        if (Mathf.Abs(mag.y) > 0.01f && Mathf.Abs(y) < 0.05f || (mag.y < -0.01f && y > 0) || (mag.y > 0.01f && y < 0))
+
+        if (pc.crouchHeld)
         {
-            pc.rb.AddForce(pc.moveSpeedAccel * pc.orientation.transform.forward * -mag.y * .175f);
+            if (pc.rb.linearVelocity.magnitude > 0.5f) sm.ChangeState(sm.stateSliding);
+            else sm.ChangeState(sm.stateCrouching);
+            return;
         }
-    }
 
-    public override void JumpStart()
-    {
-        sm.ChangeState(sm.stateJumping);
-    }
-
-    public override void GroundedEnd()
-    {
-        sm.ChangeState(sm.stateFalling);
-    }
-
-    public override void CrouchStart()
-    {
-        if (pc.rb.linearVelocity.magnitude > 0.5f) sm.ChangeState(sm.stateSliding);
-        else sm.ChangeState(sm.stateCrouching);
+        sm.ChangeState(sm.stateStanding);
     }
 }
