@@ -15,7 +15,7 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnMove(CallbackContext context)
     {
         stateManager.currentState.Movement(context.ReadValue<Vector2>());
-        pc.dir = context.ReadValue<Vector2>();
+        pc.Movement(context.ReadValue<Vector2>());
     }
 
     public void OnJump(CallbackContext context)

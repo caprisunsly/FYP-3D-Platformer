@@ -3,12 +3,10 @@ using UnityEngine;
 
 public class State_Sliding : Base_State
 {
+    [Header("Sliding")]
     [SerializeField] float slideAccel = 400;
     [SerializeField] float slideMaxSpeed = 400;
     [SerializeField] float slideTime = 400;
-    [SerializeField] float slideCounterMovement = 0.2f;
-
-    bool crouching = true;
 
     public override void StateEntry()
     {
@@ -45,23 +43,13 @@ public class State_Sliding : Base_State
             time += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
-        if (crouching) sm.ChangeState(sm.stateCrouching);
+        if (pc.crouchHeld) sm.ChangeState(sm.stateCrouching);
         else sm.ChangeState(sm.stateStanding);
     }
 
     public override void JumpStart()
     {
         sm.ChangeState(sm.stateJumping);
-    }
-
-    public override void CrouchCancel()
-    {
-        crouching = false;
-    }
-
-    public override void CrouchStart()
-    {
-        crouching = true;
     }
 
     public override void GroundedEnd()

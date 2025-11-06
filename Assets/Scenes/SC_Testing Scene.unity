@@ -497,7 +497,7 @@ Transform:
   m_GameObject: {fileID: 244089862}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0.995, z: 0}
+  m_LocalPosition: {x: 0, y: -0.324, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -517,7 +517,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 01c806f1d63bc974ab5950c4bd5935c1, type: 2}
   m_DrawDistance: 1000
-  m_FadeScale: 0.9
+  m_FadeScale: 1
   m_StartAngleFade: 180
   m_EndAngleFade: 180
   m_UVScale: {x: 1, y: 1}
@@ -1808,9 +1808,9 @@ MonoBehaviour:
   <playerModel>k__BackingField: {fileID: 600066974}
   <standingHeight>k__BackingField: 2
   <crouchingHeight>k__BackingField: 1
-  <moveSpeedAccel>k__BackingField: 400
-  <moveSpeedMax>k__BackingField: 12
-  <gravity>k__BackingField: 180
+  <defaultSpeedAccel>k__BackingField: 0
+  <defaultSpeedMax>k__BackingField: 0
+  <gravity>k__BackingField: 400
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1
@@ -1822,6 +1822,7 @@ MonoBehaviour:
   dir: {x: 0, y: 0}
   crouchHeld: 0
   jumpHeld: 0
+  moving: 0
 --- !u!114 &823412768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1879,11 +1880,11 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 1
+  m_CollisionDetection: 2
 --- !u!4 &823412771
 Transform:
   m_ObjectHideFlags: 0
@@ -1926,6 +1927,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
+  <speedMax>k__BackingField: 15
+  <speedAccel>k__BackingField: 400
 --- !u!114 &823412775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1939,8 +1942,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  crouchAccel: 250
-  crouchMaxSpeed: 7
+  <speedMax>k__BackingField: 8
+  <speedAccel>k__BackingField: 250
 --- !u!114 &823412776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1954,10 +1957,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
+  <speedMax>k__BackingField: -1
+  <speedAccel>k__BackingField: -1
   slideAccel: 2000
   slideMaxSpeed: 25
   slideTime: 0.7
-  slideCounterMovement: 0.2
 --- !u!114 &823412777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1971,9 +1975,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  jumpForce: 160
-  jumpCancelForce: 200
-  airAccel: 300
+  <speedMax>k__BackingField: 15
+  <speedAccel>k__BackingField: 300
+  jumpForce: 180
+  jumpCancelForce: 100
   jumpBufferTime: 0.2
 --- !u!114 &823412778
 MonoBehaviour:
@@ -1988,7 +1993,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  airAccel: 300
+  <speedMax>k__BackingField: 15
+  <speedAccel>k__BackingField: 300
+  jumpBufferTime: 0.2
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

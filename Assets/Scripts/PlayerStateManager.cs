@@ -58,11 +58,17 @@ public class PlayerStateManager : MonoBehaviour
     public void ChangeState(Base_State newState)
     {
 
-        if (c_waitForTransition != null)
-        {
-            StopCoroutine(c_waitForTransition);
-        }
-        c_waitForTransition = StartCoroutine(C_WaitForTransition(newState));
+        currentState.StateExit();
+        currentState = newState;
+        currentState.StateEntry();
+        Debug.Log(currentState + ": " + (Time.time - t));
+        t = Time.time;
+
+        /*        if (c_waitForTransition != null)
+                {
+                    StopCoroutine(c_waitForTransition);
+                }
+                c_waitForTransition = StartCoroutine(C_WaitForTransition(newState));*/
     }
 
     /*    public void StopTransition()

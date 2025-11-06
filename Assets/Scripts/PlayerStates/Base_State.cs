@@ -2,9 +2,12 @@ using UnityEngine;
 
 public abstract class Base_State : MonoBehaviour
 {
+    [Header("Base State")]
     public PlayerController pc { get; protected set; }
     public PlayerStateManager sm { get; protected set; }
     [field: SerializeField] public float transitionTime { get; protected set; }
+    [field: SerializeField] public float speedMax { get; protected set; } = 400;
+    [field: SerializeField] public float speedAccel { get; protected set; } = 150;
 
     private void Awake()
     {
@@ -14,7 +17,7 @@ public abstract class Base_State : MonoBehaviour
 
     public virtual void StateEntry()
     {
-
+        pc.SetSpeed(speedMax, speedAccel);
     }
 
     public virtual void StateUpdate()
