@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask whatIsGround;
 
     [SerializeField] float maxSlopeAngle = 35f;
-    Vector3 slopeDirection = Vector3.up;
+    public Vector3 slopeDirection { get; private set; } = Vector3.up;
     [SerializeField] float characterRotationSpeed;
 
 
@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
 
     public Vector2 dir = Vector2.zero;
 
-    bool touchingFloor;
+    bool touchingFloor, onSlope;
     Coroutine c_coyote, c_movement;
 
     public static event Action EnterGrounded;
@@ -209,8 +209,8 @@ public class PlayerController : MonoBehaviour
     void CheckGrounded()
     {
         slopeDirection = Vector3.up;
-        Debug.DrawRay(transform.position, Vector3.down * 1.1f, Color.red, .02f);
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, 1.1f, whatIsGround))
+        Debug.DrawRay(transform.position, Vector3.down * 2f, Color.red, .02f);
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, 2f, whatIsGround))
         {
             if (IsFloor(info.normal))
             {
@@ -228,6 +228,7 @@ public class PlayerController : MonoBehaviour
             {
                 jumpsRemaining = totalJumps;
                 EnterGrounded.Invoke();
+                //counteract the slight slide down that is induced upon landing
             }
             if (c_coyote != null)
             {
@@ -238,7 +239,6 @@ public class PlayerController : MonoBehaviour
         else
         {
             if (c_coyote == null) c_coyote = StartCoroutine(C_CoyoteTime());
-            slopeDirection = Vector3.up;
         }
         touchingFloor = false;
     }

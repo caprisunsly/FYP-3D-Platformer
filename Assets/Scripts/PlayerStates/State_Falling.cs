@@ -33,7 +33,7 @@ public class State_Falling : Base_State
 
         if (pc.crouchHeld)
         {
-            if (pc.rb.linearVelocity.magnitude > 0.5f) sm.ChangeState(sm.stateSliding);
+            if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero) sm.ChangeState(sm.stateSliding);
             else sm.ChangeState(sm.stateCrouching);
             return;
         }
