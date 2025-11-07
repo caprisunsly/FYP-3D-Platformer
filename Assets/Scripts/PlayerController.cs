@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float maxSlopeAngle = 35f;
     public Vector3 slopeDirection { get; private set; } = Vector3.up;
+    Vector3 movingDir;
     [SerializeField] float characterRotationSpeed;
 
 
@@ -125,7 +126,9 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         rb.AddForce(-slopeDirection * gravity); //extra gravity force
-        playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z)), characterRotationSpeed);
+
+        Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        if (movement.magnitude > .001f) playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(movement), characterRotationSpeed);
         //slow the player down if they are going above max speed (prevents diagonal movement at high speed)
         if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > defaultSpeedMax && grounded)
         {
@@ -141,13 +144,6 @@ public class PlayerController : MonoBehaviour
     private void FrictionForce(Vector2 mag)
     {
         if (!grounded) return;
-
-        /*        //if the player is moving, reduce their speed relative to their current velocity????
-                Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-                if (movement.magnitude > .1)
-                {
-                    rb.AddForce(-movement.normalized * moveSpeedAccel * .15f);
-                }*/
 
 
         //Counter movement. This causes some funky stuff when the player jumps currently

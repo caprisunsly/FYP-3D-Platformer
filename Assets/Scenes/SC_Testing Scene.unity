@@ -1657,7 +1657,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
   field of view: 75
   orthographic: 0
@@ -1685,7 +1685,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.005556996, y: 0.70708495, z: -0.005556996, w: 0.707085}
+  m_LocalRotation: {x: 0.005558589, y: 0.707085, z: -0.005558589, w: 0.70708495}
   m_LocalPosition: {x: -119.999, y: 8.052815, z: 39.499996}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6076,8 +6076,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 823412771}
   deadzoneDown: 0
-  deadzoneUp: 2
-  offset: 2
+  deadzoneUp: 0
+  offset: -0.5
+  damping: 0
 --- !u!1 &770669168
 GameObject:
   m_ObjectHideFlags: 0
@@ -7223,7 +7224,7 @@ Rigidbody:
   m_GameObject: {fileID: 823412765}
   serializedVersion: 5
   m_Mass: 10
-  m_LinearDamping: 0
+  m_LinearDamping: 0.15
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -7284,7 +7285,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
   <speedMax>k__BackingField: 15
-  <speedAccel>k__BackingField: 400
+  <speedAccel>k__BackingField: 450
 --- !u!114 &823412775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10415,7 +10416,7 @@ MonoBehaviour:
   Lens:
     FieldOfView: 75
     OrthographicSize: 5
-    NearClipPlane: 0.3
+    NearClipPlane: 0.01
     FarClipPlane: 1000
     Dutch: 0
     ModeOverride: 0
@@ -10440,7 +10441,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1287907447}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.005558588, y: 0.70708495, z: -0.005558588, w: 0.70708495}
+  m_LocalRotation: {x: 0.005558592, y: 0.70708495, z: -0.005558592, w: 0.70708495}
   m_LocalPosition: {x: -123.31601, y: 8.10494, z: 39.499996}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -10491,7 +10492,7 @@ MonoBehaviour:
   TargetOffset: {x: 0, y: 0, z: 0}
   TrackerSettings:
     BindingMode: 4
-    PositionDamping: {x: 0.3, y: 2, z: 0.3}
+    PositionDamping: {x: 0.3, y: 0, z: 0.3}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
@@ -10558,7 +10559,7 @@ MonoBehaviour:
   TransparentLayers:
     serializedVersion: 2
     m_Bits: 0
-  MinimumDistanceFromTarget: 0.3
+  MinimumDistanceFromTarget: 0.01
   AvoidObstacles:
     Enabled: 1
     DistanceLimit: 0
@@ -10571,7 +10572,7 @@ MonoBehaviour:
     MaximumEffort: 6
     SmoothingTime: 0.15
     Damping: 0.4
-    DampingWhenOccluded: 0.2
+    DampingWhenOccluded: 0
   ShotQualityEvaluation:
     Enabled: 0
     OptimalDistance: 10
