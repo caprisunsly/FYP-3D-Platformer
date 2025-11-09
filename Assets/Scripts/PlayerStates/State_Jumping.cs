@@ -15,6 +15,7 @@ public class State_Jumping : Base_State
     {
         base.StateEntry();
         fall = false;
+        StartCoroutine(pc.C_OverrideSlopeDirection());
         Jump();
         if (!pc.jumpHeld) Invoke(nameof(JumpCancel), 0.1f); //prevents buffered jumps from the falling state from always being max height
     }

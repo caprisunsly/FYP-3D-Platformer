@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 
 public class PlayerController : MonoBehaviour
 {
+
+    public Transform hhhh;
     [field: SerializeField] public Transform playerCam { get; private set; }
     [field: SerializeField] public Transform orientation { get; private set; }
     [field: SerializeField] public Transform playerModel { get; private set; }
@@ -20,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public float gravity { get; private set; }
 
     public bool grounded { get; private set; } = false;
+    public bool overrideSlopeDirection;
     bool oldGrounded;
     [SerializeField] LayerMask whatIsGround;
 
@@ -33,6 +37,8 @@ public class PlayerController : MonoBehaviour
     [Header("Jumping")]
     [SerializeField] int totalJumps;
     public int jumpsRemaining;
+
+    int gravityMult = 1;
 
     [SerializeField] float coyoteTime;    
 
@@ -82,6 +88,13 @@ public class PlayerController : MonoBehaviour
         curSpeedDecel = decel;
     }
 
+    public IEnumerator C_OverrideSlopeDirection()
+    {
+        overrideSlopeDirection = true;
+        yield return new WaitForSeconds(0.1f);
+        overrideSlopeDirection = false;
+    }
+
     public void Movement(Vector2 dir)
     {
         if (c_movement != null)
@@ -116,7 +129,7 @@ public class PlayerController : MonoBehaviour
             Vector3 movement = Vector3.ClampMagnitude(orientation.transform.forward * appliedDir.y + orientation.transform.right * appliedDir.x, 1);
 
             //Apply forces to move player
-            rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection).normalized * curSpeedAccel);
+            rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection) * curSpeedAccel);
 
             if (dir == Vector2.zero && rb.linearVelocity.magnitude == 0) moving = false;
             yield return new WaitForFixedUpdate();
@@ -125,10 +138,10 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        rb.AddForce(-slopeDirection * gravity); //extra gravity force
+        rb.AddForce(-slopeDirection * gravity * gravityMult); //extra gravity force
 
         Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        if (movement.magnitude > .001f) playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(movement), characterRotationSpeed);
+        if (movement.magnitude > .01f) playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(movement), characterRotationSpeed);
         //slow the player down if they are going above max speed (prevents diagonal movement at high speed)
         if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > curSpeedMax && grounded)
         {
@@ -186,6 +199,30 @@ public class PlayerController : MonoBehaviour
         return angle < maxSlopeAngle;
     }
 
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (whatIsGround != (whatIsGround | (1 << collision.gameObject.layer))) return;
+        if (IsFloor(collision.GetContact(0).normal))
+        {
+
+            ContactPoint hit = collision.GetContact(0);
+            hhhh.rotation = Quaternion.FromToRotation(collision.GetContact(0).normal, Vector3.up) * hhhh.rotation;
+        }
+    }
+
+    IEnumerator C_NegateSlopeSlide()
+    {
+        Debug.Log("HERE!!!! !    " + rb.linearVelocity);
+        gravityMult = 0;
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        yield return new WaitForFixedUpdate();
+        gravityMult = 1;
+
+        
+
+    }
+
     private void OnCollisionStay(Collision collision)
     {
         //can potentially hijack this for wall collisions later if wall jumping is implemented or something similar
@@ -207,17 +244,20 @@ public class PlayerController : MonoBehaviour
     void CheckGrounded()
     {
         slopeDirection = Vector3.up;
-        Debug.DrawRay(transform.position, Vector3.down * 2f, Color.red, .02f);
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, 2f, whatIsGround))
+        Debug.DrawRay(transform.position, Vector3.down * 1.1f, Color.red, .02f);
+        if (!overrideSlopeDirection)
         {
-            if (IsFloor(info.normal))
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, 1.1f, whatIsGround))
             {
-                slopeDirection = info.normal;
+                if (IsFloor(info.normal))
+                {
+                    slopeDirection = info.normal;
+                }
             }
         }
 
 
-        oldGrounded = grounded;
+            oldGrounded = grounded;
         //if OnCollisionStay found a valid floor
         if (touchingFloor)
         {
