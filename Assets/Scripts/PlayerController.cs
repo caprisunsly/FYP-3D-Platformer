@@ -1,9 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Rendering;
-using UnityEngine.Splines;
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,8 +14,9 @@ public class PlayerController : MonoBehaviour
     
 
     [Header("Movement")]
-    [field: SerializeField] public float defaultSpeedAccel { get; private set; }
-    [field: SerializeField] public float defaultSpeedMax  { get; private set; }
+    [field: SerializeField] public float curSpeedAccel { get; private set; }
+    [field: SerializeField] public float curSpeedDecel  { get; private set; }
+    [field: SerializeField] public float curSpeedMax  { get; private set; }
     [field: SerializeField] public float gravity { get; private set; }
 
     public bool grounded { get; private set; } = false;
@@ -70,16 +68,18 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
     }
 
-    public void SetSpeed(float max, float accel)
+    public void SetSpeed(float max, float accel, float decel)
     {
-        if (max == -1 || accel == -1) //if the state will handle movement
+        if (max == -1 || accel == -1 || decel == -1) //if the state will handle movement
         {
-            defaultSpeedMax = 10000000; //essentially uncapped max speed in this state
-            defaultSpeedAccel = 0; //no acceleration
+            curSpeedMax = 10000000; //essentially uncapped max speed in this state
+            curSpeedAccel = 0; //no acceleration
+            curSpeedDecel = 0; //no deceleration
             return;
         }
-        defaultSpeedMax = max;
-        defaultSpeedAccel = accel;
+        curSpeedMax = max;
+        curSpeedAccel = accel;
+        curSpeedDecel = decel;
     }
 
     public void Movement(Vector2 dir)
@@ -107,16 +107,16 @@ public class PlayerController : MonoBehaviour
             //If speed is larger than maxspeed, cancel out the input so player doesn't go over max speed
             Vector2 appliedDir = dir;
 
-            if (dir.x > 0 && mag.x > defaultSpeedMax) appliedDir.x = 0;
-            if (dir.x < 0 && mag.x < -defaultSpeedMax) appliedDir.x = 0;
-            if (dir.y > 0 && mag.y > defaultSpeedMax) appliedDir.y = 0;
-            if (dir.y < 0 && mag.y < -defaultSpeedMax) appliedDir.y = 0;
+            if (dir.x > 0 && mag.x > curSpeedMax) appliedDir.x = 0;
+            if (dir.x < 0 && mag.x < -curSpeedMax) appliedDir.x = 0;
+            if (dir.y > 0 && mag.y > curSpeedMax) appliedDir.y = 0;
+            if (dir.y < 0 && mag.y < -curSpeedMax) appliedDir.y = 0;
 
             //Apply forces to move player
             Vector3 movement = Vector3.ClampMagnitude(orientation.transform.forward * appliedDir.y + orientation.transform.right * appliedDir.x, 1);
 
             //Apply forces to move player
-            rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection).normalized * defaultSpeedAccel);
+            rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection).normalized * curSpeedAccel);
 
             if (dir == Vector2.zero && rb.linearVelocity.magnitude == 0) moving = false;
             yield return new WaitForFixedUpdate();
@@ -130,31 +130,33 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         if (movement.magnitude > .001f) playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(movement), characterRotationSpeed);
         //slow the player down if they are going above max speed (prevents diagonal movement at high speed)
-        if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > defaultSpeedMax && grounded)
+        if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > curSpeedMax && grounded)
         {
-            rb.AddForce(defaultSpeedAccel * new Vector3(-rb.linearVelocity.normalized.x, 0, -rb.linearVelocity.normalized.z));
+            rb.AddForce(curSpeedAccel * new Vector3(-rb.linearVelocity.normalized.x, 0, -rb.linearVelocity.normalized.z));
         }
-        //Find actual velocity relative to where camera is looking
-        Vector2 mag = FindVelRelativeToLook();
 
         //slows the player down if they arent inputting anything
-        if (dir.magnitude == 0) FrictionForce(mag);
+        if (dir.magnitude == 0) FrictionForce();
     }
 
-    private void FrictionForce(Vector2 mag)
+    private void FrictionForce()
     {
         if (!grounded) return;
 
+        Vector3 vel = rb.linearVelocity;
 
         //Counter movement. This causes some funky stuff when the player jumps currently
-        if (Mathf.Abs(mag.x) > 0.01f && Mathf.Abs(dir.x) < 0.05f || (mag.x < -0.01f && dir.x > 0) || (mag.x > 0.01f && dir.x < 0))
+        if (Mathf.Abs(vel.x) > 0.01f)
         {
-            rb.AddForce(defaultSpeedAccel * orientation.transform.right * -mag.x * .175f);
+            rb.AddForce(curSpeedDecel * new Vector3(-vel.x, 0, 0) * .175f);
         }
-        if (Mathf.Abs(mag.y) > 0.01f && Mathf.Abs(dir.y) < 0.05f || (mag.y < -0.01f && dir.y > 0) || (mag.y > 0.01f && dir.y < 0))
+        else if (Mathf.Abs(vel.x) < 0.01f && Mathf.Abs(vel.x) > 0) rb.linearVelocity = new Vector3(0, vel.y, vel.z);
+        if (Mathf.Abs(vel.z) > 0.01f)
         {
-            rb.AddForce(defaultSpeedAccel * orientation.transform.forward * -mag.y * .175f);
+            rb.AddForce(curSpeedDecel * new Vector3(0, 0, -vel.z) * .175f);
         }
+        //changed to rb reference for the edge case that both happen at the same time. Wouldnt want this to overrwrite the change the other has made with the value of vel
+        else if (Mathf.Abs(vel.x) < 0.01f && Mathf.Abs(vel.x) > 0) rb.linearVelocity = new Vector3(rb.linearVelocity.x, vel.y, 0);
     }
 
     private void CameraOrientation()
