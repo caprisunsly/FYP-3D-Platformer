@@ -7,6 +7,12 @@ public class State_Falling : Base_State
     Coroutine c_jumpBuffer;
     [SerializeField] float jumpBufferTime;
 
+    public override void StateEntry()
+    {
+        base.StateEntry();
+        pc.modelAnim.SetTrigger("Fall");
+    }
+
     IEnumerator JumpBuffer()
     {
         yield return new WaitForSeconds(jumpBufferTime);

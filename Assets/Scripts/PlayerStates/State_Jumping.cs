@@ -50,6 +50,7 @@ public class State_Jumping : Base_State
         if (pc.grounded && pc.jumpsRemaining > 0)
         {
             pc.jumpsRemaining--;
+            pc.modelAnim.SetTrigger("Jump");
 
             //Add jump forces
             pc.rb.AddForce(Vector2.up * jumpForce /* * .75 */, ForceMode.Impulse);

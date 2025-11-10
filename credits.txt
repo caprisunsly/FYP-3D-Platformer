@@ -1,0 +1,2 @@
+Fox Player Model - https://gtibo.itch.io/hooded-fox
+Jiggle Physics Plugin - https://github.com/naelstrof/JigglePhysics

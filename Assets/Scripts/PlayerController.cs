@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Transform playerCam { get; private set; }
     [field: SerializeField] public Transform orientation { get; private set; }
     [field: SerializeField] public Transform playerModel { get; private set; }
+    [field: SerializeField] public Animator modelAnim { get; private set; }
+
     public CapsuleCollider cl { get; private set; }
     public Rigidbody rb { get; private set; }
     [field: SerializeField] public float standingHeight { get; private set; } = 2f;
@@ -105,6 +107,7 @@ public class PlayerController : MonoBehaviour
         moving = true;
         c_movement = StartCoroutine(C_Movement(dir));
         this.dir = dir;
+        modelAnim.SetInteger("Input", Mathf.RoundToInt(dir.magnitude));
     }
 
     private IEnumerator C_Movement(Vector2 dir)
@@ -205,7 +208,6 @@ public class PlayerController : MonoBehaviour
         if (whatIsGround != (whatIsGround | (1 << collision.gameObject.layer))) return;
         if (IsFloor(collision.GetContact(0).normal))
         {
-
             ContactPoint hit = collision.GetContact(0);
             hhhh.rotation = Quaternion.FromToRotation(collision.GetContact(0).normal, Vector3.up) * hhhh.rotation;
         }
@@ -266,6 +268,7 @@ public class PlayerController : MonoBehaviour
             {
                 jumpsRemaining = totalJumps;
                 EnterGrounded.Invoke();
+                modelAnim.SetTrigger("Stand");
                 //counteract the slight slide down that is induced upon landing
             }
             if (c_coyote != null)
