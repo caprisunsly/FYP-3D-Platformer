@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Splines;
 
 public class State_Sliding : Base_State
 {
@@ -8,6 +7,7 @@ public class State_Sliding : Base_State
     [SerializeField] float slideAccel = 400;
     [SerializeField] float slideMaxSpeed = 400;
     [SerializeField] float slideTime = 400;
+    [SerializeField] float jumpBufferTime;
     Vector2 dir;
 
     Coroutine c_sliding;
@@ -42,7 +42,6 @@ public class State_Sliding : Base_State
         veer = dir.x;
     }
 
-
     IEnumerator C_Sliding()
     {
         float time = 0;
@@ -52,7 +51,7 @@ public class State_Sliding : Base_State
         while (time < slideTime || !canExit)
         {
             //if something is found, cant exit crouch due to low ceiling bugs.
-            canExit = !Physics.Raycast(transform.position, transform.up, pc.standingHeight, pc.whatIsGround);
+            canExit = !Physics.BoxCast(transform.position, new Vector3(1, pc.crouchingHeight, 1), transform.up, Quaternion.identity, 2, pc.whatIsGround);
 
             dir = new Vector2(dir.x + veer, dir.y).normalized;
             Vector3 movement = Vector3.ClampMagnitude(pc.orientation.transform.forward * dir.y + pc.orientation.transform.right * dir.x, 1);
@@ -67,14 +66,28 @@ public class State_Sliding : Base_State
             time += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
-        pc.modelAnim.SetBool("Sliding", false);
         sm.ChangeState(sm.stateStanding);
     }
 
     public override void JumpStart()
     {
-        if (!canExit) return;
-        sm.ChangeState(sm.stateJumping);
+        StartCoroutine(C_JumpBuffer());
+    }
+
+    IEnumerator C_JumpBuffer()
+    {
+        float time = 0;
+        while (time < jumpBufferTime)
+        {
+            if (canExit)
+            {
+                sm.ChangeState(sm.stateJumping);
+                break;
+            }
+
+            yield return null;
+            time += Time.deltaTime;
+        }
     }
 
     public override void GroundedEnd()

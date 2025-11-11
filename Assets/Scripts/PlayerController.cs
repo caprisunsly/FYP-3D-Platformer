@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using static Unity.VisualScripting.Member;
 
 public class PlayerController : MonoBehaviour
 {
@@ -31,7 +30,6 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float maxSlopeAngle = 35f;
     public Vector3 slopeDirection { get; private set; } = Vector3.up;
-    Vector3 movingDir;
     [SerializeField] float characterRotationSpeed;
 
 
@@ -40,7 +38,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int totalJumps;
     public int jumpsRemaining;
 
-    int gravityMult = 1;
+    float gravityMult = 1;
 
     [SerializeField] float coyoteTime;    
 
@@ -76,8 +74,10 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
     }
 
-    public void SetSpeed(float max, float accel, float decel)
+    public void SetSpeed(float max, float accel, float decel, float gravity)
     {
+        gravityMult = gravity;
+
         if (max == -1 || accel == -1 || decel == -1) //if the state will handle movement
         {
             curSpeedMax = 10000000; //essentially uncapped max speed in this state
@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        rb.AddForce(-slopeDirection * gravity * gravityMult); //extra gravity force
+        rb.AddForce(gravity * gravityMult * -slopeDirection); //extra gravity force
         Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         modelAnim.SetFloat("SpeedXZ", (Mathf.Abs(movement.magnitude) / curSpeedMax) + .2f);
         if (movement.magnitude < 0.05f) movement = playerModel.forward;
@@ -252,7 +252,7 @@ public class PlayerController : MonoBehaviour
             {
                 jumpsRemaining = totalJumps;
                 EnterGrounded.Invoke();
-                modelAnim.SetTrigger("Stand");
+                modelAnim.SetBool("Standing", true);
                 //counteract the slight slide down that is induced upon landing
             }
             if (c_coyote != null)
@@ -273,5 +273,6 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(coyoteTime);
         grounded = false;
         ExitGrounded.Invoke();
+        modelAnim.SetBool("Standing", false);
     }
 }

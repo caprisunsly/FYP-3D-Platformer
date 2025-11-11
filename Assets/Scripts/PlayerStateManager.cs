@@ -9,6 +9,7 @@ public class PlayerStateManager : MonoBehaviour
     public State_Sliding stateSliding { get; private set; }
     public State_Jumping stateJumping { get; private set; }
     public State_Falling stateFalling { get; private set; }
+    public State_LedgeHang stateLedgeHang { get; private set; }
     public float transitionTimer { get; private set; }
     Coroutine c_transitionTimer, c_waitForTransition;
 
@@ -27,10 +28,11 @@ public class PlayerStateManager : MonoBehaviour
     private void Start()
     {
         stateStanding = GetComponent<State_Standing>();
-        stateCrouching = GetComponent<State_Crouching>();
-        stateSliding = GetComponent<State_Sliding>();
+/*        stateCrouching = GetComponent<State_Crouching>();
+*/        stateSliding = GetComponent<State_Sliding>();
         stateJumping = GetComponent<State_Jumping>();
         stateFalling = GetComponent<State_Falling>();
+        stateLedgeHang = GetComponent<State_LedgeHang>();
         currentState = stateStanding;
         currentState.StateEntry();
     }
