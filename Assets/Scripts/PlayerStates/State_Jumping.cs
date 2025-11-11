@@ -38,7 +38,7 @@ public class State_Jumping : Base_State
 
     public override void StateLogic()
     {
-        if (pc.rb.linearVelocity.y > -1) return;
+        if (pc.rb.linearVelocity.y > 0) return;
         if (fall) return;
         fall = true;
 
@@ -99,9 +99,11 @@ public class State_Jumping : Base_State
 
         if (pc.crouchHeld) 
         {
-            if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero) sm.ChangeState(sm.stateSliding);
-            else sm.ChangeState(sm.stateCrouching);
-            return;
+            if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero)
+            {
+                sm.ChangeState(sm.stateSliding);
+                return;
+            }
         }
 
         sm.ChangeState(sm.stateStanding);

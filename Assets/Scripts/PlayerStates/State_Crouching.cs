@@ -6,13 +6,14 @@ public class State_Crouching : Base_State
     [Header("Crouching")]
     Coroutine c_checkCrouchExit;
 
+    float offset;
+
     public override void StateEntry()
     {
         base.StateEntry();
+        offset = pc.cl.center.y;
         pc.cl.height = pc.crouchingHeight;
-        pc.cl.center = new Vector3(0, -pc.crouchingHeight/2, 0);
-        pc.playerModel.localScale = new Vector3(1, pc.crouchingHeight/2, 1);
-        pc.playerModel.transform.localPosition = new Vector3(0, -pc.crouchingHeight / 2, 0);
+        pc.cl.center = new Vector3(0, -pc.crouchingHeight/2 + offset, 0);
     }
 
     public override void StateExit()
@@ -20,10 +21,7 @@ public class State_Crouching : Base_State
         base.StateExit();
 
         pc.cl.height = pc.standingHeight;
-        pc.cl.center = Vector3.zero;
-        pc.playerModel.localScale = new Vector3(1, 1, 1);
-        pc.playerModel.transform.localPosition = new Vector3(0, 0, 0);
-
+        pc.cl.center = new Vector3 (0, offset, 0);
     }
 
     public override void CrouchStart()

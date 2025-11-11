@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
     public bool grounded { get; private set; } = false;
     public bool overrideSlopeDirection;
     bool oldGrounded;
-    [SerializeField] LayerMask whatIsGround;
+    [field: SerializeField] public LayerMask whatIsGround { get; private set; }
 
     [SerializeField] float maxSlopeAngle = 35f;
     public Vector3 slopeDirection { get; private set; } = Vector3.up;
@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
         moving = true;
         c_movement = StartCoroutine(C_Movement(dir));
         this.dir = dir;
-        modelAnim.SetInteger("Input", Mathf.RoundToInt(dir.magnitude));
+        modelAnim.SetInteger("InputXZ", Mathf.RoundToInt(dir.magnitude));
     }
 
     private IEnumerator C_Movement(Vector2 dir)
@@ -142,9 +142,10 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         rb.AddForce(-slopeDirection * gravity * gravityMult); //extra gravity force
-
         Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        if (movement.magnitude > .01f) playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(movement), characterRotationSpeed);
+        modelAnim.SetFloat("SpeedXZ", (Mathf.Abs(movement.magnitude) / curSpeedMax) + .2f);
+        if (movement.magnitude < 0.05f) movement = playerModel.forward;
+        playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(Vector3.ProjectOnPlane(movement, slopeDirection)), characterRotationSpeed);
         //slow the player down if they are going above max speed (prevents diagonal movement at high speed)
         if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > curSpeedMax && grounded)
         {
@@ -225,41 +226,24 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private void OnCollisionStay(Collision collision)
-    {
-        //can potentially hijack this for wall collisions later if wall jumping is implemented or something similar
-        //Make sure we are only checking for walkable layers.
-        if (whatIsGround != (whatIsGround | (1 << collision.gameObject.layer))) return;
-
-        //Iterate through every collision
-        foreach (var contact in collision.contacts)
-        {
-            //FLOOR
-            if (IsFloor(contact.normal)) //is the normal of the contact point within the players walkable range
-            {
-                touchingFloor = true;
-                return;
-            }
-        }
-    }
-
     void CheckGrounded()
     {
         slopeDirection = Vector3.up;
-        Debug.DrawRay(transform.position, Vector3.down * 1.1f, Color.red, .02f);
+        Debug.DrawRay(transform.position, Vector3.down * .3f, Color.red, .02f);
+        Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + crouchingHeight, transform.position.z), Vector3.up * standingHeight, Color.red, .02f);
         if (!overrideSlopeDirection)
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, 1.1f, whatIsGround))
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, .3f, whatIsGround))
             {
                 if (IsFloor(info.normal))
                 {
                     slopeDirection = info.normal;
+                    touchingFloor = true;
                 }
             }
         }
 
-
-            oldGrounded = grounded;
+        oldGrounded = grounded;
         //if OnCollisionStay found a valid floor
         if (touchingFloor)
         {

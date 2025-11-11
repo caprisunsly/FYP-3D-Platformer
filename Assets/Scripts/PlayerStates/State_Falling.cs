@@ -19,6 +19,7 @@ public class State_Falling : Base_State
         c_jumpBuffer = null;
     }
 
+
     public override void JumpStart()
     {
         if (c_jumpBuffer != null)
@@ -39,9 +40,12 @@ public class State_Falling : Base_State
 
         if (pc.crouchHeld)
         {
-            if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero) sm.ChangeState(sm.stateSliding);
-            else sm.ChangeState(sm.stateCrouching);
-            return;
+            if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero)
+            {
+                sm.ChangeState(sm.stateSliding);
+                return;
+            }
+            /*            else sm.ChangeState(sm.stateCrouching);*/
         }
 
         sm.ChangeState(sm.stateStanding);
