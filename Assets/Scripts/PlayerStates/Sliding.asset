@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc9c43976671534082fd638ce64c219, type: 3}
+  m_Name: Sliding
+  m_EditorClassIdentifier: 
+  <transitionTime>k__BackingField: 0
+  <speedMax>k__BackingField: -1
+  <speedAccel>k__BackingField: -1
+  <speedDecel>k__BackingField: -1
+  <gravityMult>k__BackingField: 1
+  <shouldRotate>k__BackingField: 1
+  slideAccel: 2000
+  slideMaxSpeed: 25
+  slideTime: 0.7
+  jumpBufferTime: 0.2

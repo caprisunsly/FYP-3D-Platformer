@@ -1,6 +1,6 @@
 using UnityEngine;
-
-public abstract class Base_State : MonoBehaviour
+[System.Serializable]
+public abstract class Base_State : ScriptableObject
 {
     [Header("Base State")]
     public PlayerController pc { get; protected set; }
@@ -12,14 +12,9 @@ public abstract class Base_State : MonoBehaviour
     [field: SerializeField] public float gravityMult { get; protected set; } = 1;
     [field: SerializeField] public bool shouldRotate { get; protected set; } = true;
 
-    private void Awake()
+    public virtual void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
-        pc = GetComponent<PlayerController>();
-        sm = GetComponent<PlayerStateManager>();
-    }
-
-    public virtual void StateEntry()
-    {
+        pc = PC; sm = SM;
         pc.SetSpeed(speedMax, speedAccel, speedDecel, gravityMult, shouldRotate? 1:0);
     }
 

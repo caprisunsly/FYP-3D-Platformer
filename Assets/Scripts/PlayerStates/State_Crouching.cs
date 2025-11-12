@@ -8,9 +8,9 @@ public class State_Crouching : Base_State
 
     float offset;
 
-    public override void StateEntry()
+    public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
-        base.StateEntry();
+        base.StateEntry(PC, SM);
         offset = pc.cl.center.y;
         pc.cl.height = pc.crouchingHeight;
         pc.cl.center = new Vector3(0, -pc.crouchingHeight/2 + offset, 0);
@@ -28,7 +28,7 @@ public class State_Crouching : Base_State
     {
         if (c_checkCrouchExit != null)
         {
-            StopCoroutine(c_checkCrouchExit);
+            CoroutineRunner.Instance.StopCoroutine(c_checkCrouchExit);
             c_checkCrouchExit = null;
         }
     }
@@ -37,9 +37,9 @@ public class State_Crouching : Base_State
     {
         if (c_checkCrouchExit != null)
         {
-            StopCoroutine(c_checkCrouchExit);
+            CoroutineRunner.Instance.StopCoroutine(c_checkCrouchExit);
         }
-        c_checkCrouchExit = StartCoroutine(C_CheckCrouchExit());
+        c_checkCrouchExit = CoroutineRunner.Instance.StartCoroutine(C_CheckCrouchExit());
     }
 
     IEnumerator C_CheckCrouchExit()
@@ -49,7 +49,7 @@ public class State_Crouching : Base_State
         {
             yield return null;
             //check if there any objects where the player would stand
-            if (Physics.Raycast(new Vector3(transform.position.y, transform.position.y - pc.cl.height / 2, transform.position.z), transform.up, pc.standingHeight)) continue;
+            if (Physics.Raycast(new Vector3(pc.transform.position.y, pc.transform.position.y - pc.cl.height / 2, pc.transform.position.z), pc.transform.up, pc.standingHeight)) continue;
 
             crouching = false;
             sm.ChangeState(sm.stateStanding);

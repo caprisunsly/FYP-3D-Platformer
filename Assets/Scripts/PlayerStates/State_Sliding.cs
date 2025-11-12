@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+[CreateAssetMenu(menuName = "PlayerState/Sliding")]
 public class State_Sliding : Base_State
 {
     [Header("Sliding")]
@@ -10,21 +11,21 @@ public class State_Sliding : Base_State
     [SerializeField] float jumpBufferTime;
     Vector2 dir;
 
-    Coroutine c_sliding;
+    Coroutine c_sliding, c_jumpBuffer;
 
     float offset;
     float veer;
     bool canExit;
 
-    public override void StateEntry()
+    public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
-        base.StateEntry();
+        base.StateEntry(PC, SM);
         veer = pc.dir.x;
         dir = pc.dir;
         offset = pc.cl.center.y;
         pc.cl.height = pc.crouchingHeight;
         pc.cl.center = new Vector3(0, -pc.crouchingHeight / 2 + offset, 0);
-        c_sliding = StartCoroutine(C_Sliding());
+        c_sliding = CoroutineRunner.Instance.StartCoroutine(C_Sliding());
     }
 
     public override void StateExit()
@@ -34,7 +35,8 @@ public class State_Sliding : Base_State
         pc.modelAnim.SetBool("Sliding", false);
         pc.cl.height = pc.standingHeight;
         pc.cl.center = new Vector3(0, offset, 0);
-        StopCoroutine(c_sliding);
+        if (c_sliding != null) CoroutineRunner.Instance.StopCoroutine(c_sliding);
+        if (c_jumpBuffer != null) CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);
     }
 
     public override void Movement(Vector2 dir)
@@ -51,7 +53,7 @@ public class State_Sliding : Base_State
         while (time < slideTime || !canExit)
         {
             //if something is found, cant exit crouch due to low ceiling bugs.
-            canExit = !Physics.BoxCast(transform.position, new Vector3(1, pc.crouchingHeight, 1), transform.up, Quaternion.identity, 2, pc.whatIsGround);
+            canExit = !Physics.BoxCast(pc.transform.position, new Vector3(1, pc.crouchingHeight, 1), pc.transform.up, Quaternion.identity, 2, pc.whatIsGround);
 
             dir = new Vector2(dir.x + veer, dir.y).normalized;
             Vector3 movement = Vector3.ClampMagnitude(pc.orientation.transform.forward * dir.y + pc.orientation.transform.right * dir.x, 1);
@@ -71,7 +73,7 @@ public class State_Sliding : Base_State
 
     public override void JumpStart()
     {
-        StartCoroutine(C_JumpBuffer());
+        c_jumpBuffer = CoroutineRunner.Instance.StartCoroutine(C_JumpBuffer());
     }
 
     IEnumerator C_JumpBuffer()

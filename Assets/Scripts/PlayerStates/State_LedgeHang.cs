@@ -1,41 +1,25 @@
 using System.Collections;
 using UnityEngine;
 
+[CreateAssetMenu(menuName = "PlayerState/LedgeHang")]
 public class State_LedgeHang : Base_State
 {
     [Header("Falling")]
-    [SerializeField] Transform ledgeDetection;
     [SerializeField] float ledgeHeight;
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float yOffsetFromLedge;
     Vector3 point, direction, startPos;
-    float time;
     Coroutine c_lerpToLedge;
 
-    private void OnDrawGizmos()
+    public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
-        Vector3 heldDir = Vector3.zero;
-        if (Application.isPlaying)
-        {
-            heldDir = pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x;
-        }
-        else heldDir = transform.forward;
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(ledgeDetection.position + heldDir * ledgeSnapDistance, ledgeDetection.position + new Vector3(0, ledgeHeight, 0) + heldDir * ledgeSnapDistance);
-        Gizmos.DrawCube(point, Vector3.one * 0.1f);
-    }
-
-    public override void StateEntry()
-    {
-        base.StateEntry();
+        base.StateEntry(PC, SM);
         pc.canJump = true;
         pc.modelAnim.SetBool("LedgeHang", true);
-        time = 0;
         Vector3 heldDir = pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x;
         //find the top of the ledge with a raycast sweep, using the collision point plus an offset to position the player at the top of the ledge
-        Physics.Raycast(ledgeDetection.position, heldDir, out RaycastHit hitXZ, ledgeSnapDistance, pc.whatIsGround); 
-        Physics.Raycast(ledgeDetection.position + new Vector3(0, ledgeHeight, 0) + heldDir * ledgeSnapDistance, Vector3.down * ledgeHeight, out RaycastHit hitY, ledgeSnapDistance, pc.whatIsGround);
+        Physics.Raycast(pc.ledgeDetection.position, heldDir, out RaycastHit hitXZ, ledgeSnapDistance, pc.whatIsGround); 
+        Physics.Raycast(pc.ledgeDetection.position + new Vector3(0, ledgeHeight, 0) + heldDir * ledgeSnapDistance, Vector3.down * ledgeHeight, out RaycastHit hitY, ledgeSnapDistance, pc.whatIsGround);
 
          if (hitXZ.collider == null || hitY.collider == null)
          {
@@ -49,16 +33,16 @@ public class State_LedgeHang : Base_State
 
         point = new Vector3(pc.cl.radius * direction.x + hitXZ.point.x, yOffsetFromLedge + hitY.point.y, pc.cl.radius * direction.z + hitXZ.point.z);
 
-        startPos = transform.position;
+        startPos = pc.transform.position;
 
-        c_lerpToLedge = StartCoroutine(C_LerpToLedge());
+        c_lerpToLedge = CoroutineRunner.Instance.StartCoroutine(C_LerpToLedge());
     }
 
     public override void StateExit()
     {
-        base.StateEntry();
+        base.StateExit();
         pc.modelAnim.SetBool("LedgeHang", false);
-        StopCoroutine(c_lerpToLedge);
+        if (c_lerpToLedge != null) CoroutineRunner.Instance.StopCoroutine(c_lerpToLedge);
         c_lerpToLedge = null;
     }
 
@@ -68,8 +52,8 @@ public class State_LedgeHang : Base_State
         while (time < 1)
         {
             time += 0.34f;
-            transform.position = Vector3.Lerp(startPos, point, time);
-            pc.playerModel.rotation = Quaternion.Slerp(pc.playerModel.rotation, Quaternion.LookRotation(-direction, transform.up), time);
+            pc.transform.position = Vector3.Lerp(startPos, point, time);
+            pc.playerModel.rotation = Quaternion.Slerp(pc.playerModel.rotation, Quaternion.LookRotation(-direction, pc.transform.up), time);
             for (int i = 0; i < 3; i++)
             {
                 yield return new WaitForFixedUpdate();

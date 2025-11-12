@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[CreateAssetMenu(menuName = "PlayerState/Standing")]
 public class State_Standing : Base_State
 {
     public override void JumpStart()

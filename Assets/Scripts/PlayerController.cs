@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Transform orientation { get; private set; }
     [field: SerializeField] public Transform playerModel { get; private set; }
     [field: SerializeField] public Animator modelAnim { get; private set; }
+    [field: SerializeField] public Transform ledgeDetection { get; private set; }
 
     public CapsuleCollider cl { get; private set; }
     public Rigidbody rb { get; private set; }

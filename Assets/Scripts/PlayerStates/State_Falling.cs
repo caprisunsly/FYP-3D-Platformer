@@ -1,19 +1,19 @@
 using System.Collections;
 using UnityEngine;
 
+[CreateAssetMenu(menuName = "PlayerState/Falling")]
 public class State_Falling : Base_State
 {
     [Header("Falling")]
     Coroutine c_jumpBuffer;
     [SerializeField] float jumpBufferTime;
-    [SerializeField] Transform ledgeDetection;
     [SerializeField] float ledgeHeight;
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float minimumHeightFromGround;
 
-    public override void StateEntry()
+    public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
-        base.StateEntry();
+        base.StateEntry(PC, SM);
         pc.modelAnim.SetBool("Fall", true);
     }
 
@@ -26,23 +26,8 @@ public class State_Falling : Base_State
     IEnumerator JumpBuffer()
     {
         yield return new WaitForSeconds(jumpBufferTime);
-        c_jumpBuffer = null;
+         c_jumpBuffer = null;
     }
-
-    private void OnDrawGizmos()
-    {
-        Vector3 heldDir = Vector3.zero;
-        if (Application.isPlaying)
-        {
-            heldDir = pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x;
-        }
-        else heldDir = transform.forward;
-
-        Gizmos.DrawLine(ledgeDetection.position, ledgeDetection.position + heldDir * ledgeSnapDistance);
-        Gizmos.DrawLine(ledgeDetection.position + new Vector3(0, ledgeHeight, 0), ledgeDetection.position + new Vector3(0, ledgeHeight, 0) + heldDir * ledgeSnapDistance);
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * minimumHeightFromGround);
-    }
-    
 
     public override void StateFixedUpdate()
     {
@@ -52,11 +37,11 @@ public class State_Falling : Base_State
         Vector3 heldDir = pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x;
 
         //if there is no ground in front of the player, there is no ledge to grab, so return
-        if (!Physics.Raycast(ledgeDetection.position, heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
+        if (!Physics.Raycast(pc.ledgeDetection.position, heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
         //if there is ground a set amount above the first ray, then we arent at the top of the wall, so return
-        if (Physics.Raycast(ledgeDetection.position + new Vector3(0, ledgeHeight, 0), heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
+        if (Physics.Raycast(pc.ledgeDetection.position + new Vector3(0, ledgeHeight, 0), heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
         //if distance from ground is less than the minimum, we are too close to the ground to ledge grab, so return
-        if (Physics.Raycast(transform.position, Vector3.down, minimumHeightFromGround, pc.whatIsGround)) return;
+        if (Physics.Raycast(pc.transform.position, Vector3.down, minimumHeightFromGround, pc.whatIsGround)) return;
 
         sm.ChangeState(sm.stateLedgeHang);
     }
@@ -66,17 +51,20 @@ public class State_Falling : Base_State
     {
         if (c_jumpBuffer != null)
         {
-            StopCoroutine(c_jumpBuffer);
+            CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);
             c_jumpBuffer = null;
         }
-        c_jumpBuffer = StartCoroutine(JumpBuffer());
+        c_jumpBuffer = CoroutineRunner.Instance.StartCoroutine(JumpBuffer());
     }
 
     public override void GroundedStart()
     {
         if (c_jumpBuffer != null)
         {
+            pc.canJump = true;
             sm.ChangeState(sm.stateJumping);
+            CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);
+            c_jumpBuffer = null;
             return;
         }
 

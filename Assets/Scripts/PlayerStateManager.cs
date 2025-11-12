@@ -4,13 +4,14 @@ using UnityEngine;
 public class PlayerStateManager : MonoBehaviour
 {
     public Base_State currentState { get; private set; }
-    public State_Standing stateStanding { get; private set; }
-    public State_Crouching stateCrouching { get; private set; }
-    public State_Sliding stateSliding { get; private set; }
-    public State_Jumping stateJumping { get; private set; }
-    public State_Falling stateFalling { get; private set; }
-    public State_LedgeHang stateLedgeHang { get; private set; }
+    [field: SerializeField] public Base_State stateStanding { get; private set; }
+    [field: SerializeField] public Base_State stateSliding { get; private set; }
+    [field: SerializeField] public Base_State stateJumping { get; private set; }
+    [field: SerializeField] public Base_State stateFalling { get; private set; }
+    [field: SerializeField] public Base_State stateLedgeHang { get; private set; }
     Coroutine c_transitionTimer, c_waitForTransition;
+
+    PlayerController pc;
 
     private void OnEnable()
     {
@@ -26,14 +27,12 @@ public class PlayerStateManager : MonoBehaviour
 
     private void Start()
     {
-        stateStanding = GetComponent<State_Standing>();
-/*        stateCrouching = GetComponent<State_Crouching>();
-*/        stateSliding = GetComponent<State_Sliding>();
-        stateJumping = GetComponent<State_Jumping>();
-        stateFalling = GetComponent<State_Falling>();
-        stateLedgeHang = GetComponent<State_LedgeHang>();
+        GameObject runner = new GameObject("CoroutineRunner");
+        runner.AddComponent<CoroutineRunner>();
+        
+        pc = GetComponent<PlayerController>();
         currentState = stateStanding;
-        currentState.StateEntry();
+        currentState.StateEntry(pc, this);
     }
 
     private void Update()
@@ -58,18 +57,20 @@ public class PlayerStateManager : MonoBehaviour
 
     public void ChangeState(Base_State newState)
     {
-        if (currentState.transitionTime != 0)
+        if (c_waitForTransition != null)
         {
-            if (c_waitForTransition != null)
-            {
-                StopCoroutine(c_waitForTransition);
-            }
+            StopCoroutine(c_waitForTransition);
+        }
+
+        if (currentState.transitionTime != 0 && c_transitionTimer != null)
+        {
             c_waitForTransition = StartCoroutine(C_WaitForTransition(newState));
+            Debug.Log(currentState.name);
             return;
         }
         currentState.StateExit();
         currentState = newState;
-        currentState.StateEntry();
+        currentState.StateEntry(pc, this);
         Debug.Log(currentState + ": " + (Time.time - t));
         t = Time.time;
         c_transitionTimer = StartCoroutine(C_TransitionTimer(currentState.transitionTime));
@@ -87,7 +88,7 @@ public class PlayerStateManager : MonoBehaviour
         yield return new WaitUntil(() => c_transitionTimer == null);
         currentState.StateExit();
         currentState = newState;
-        currentState.StateEntry();
+        currentState.StateEntry(pc, this);
         Debug.Log(currentState + ": " + (Time.time - t));
         t = Time.time;
         c_transitionTimer = StartCoroutine(C_TransitionTimer(currentState.transitionTime));
