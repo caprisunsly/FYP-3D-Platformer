@@ -10,7 +10,6 @@ public class PlayerStateManager : MonoBehaviour
     public State_Jumping stateJumping { get; private set; }
     public State_Falling stateFalling { get; private set; }
     public State_LedgeHang stateLedgeHang { get; private set; }
-    public float transitionTimer { get; private set; }
     Coroutine c_transitionTimer, c_waitForTransition;
 
     private void OnEnable()
@@ -59,18 +58,21 @@ public class PlayerStateManager : MonoBehaviour
 
     public void ChangeState(Base_State newState)
     {
-
+        if (currentState.transitionTime != 0)
+        {
+            if (c_waitForTransition != null)
+            {
+                StopCoroutine(c_waitForTransition);
+            }
+            c_waitForTransition = StartCoroutine(C_WaitForTransition(newState));
+            return;
+        }
         currentState.StateExit();
         currentState = newState;
         currentState.StateEntry();
         Debug.Log(currentState + ": " + (Time.time - t));
         t = Time.time;
-
-        /*        if (c_waitForTransition != null)
-                {
-                    StopCoroutine(c_waitForTransition);
-                }
-                c_waitForTransition = StartCoroutine(C_WaitForTransition(newState));*/
+        c_transitionTimer = StartCoroutine(C_TransitionTimer(currentState.transitionTime));
     }
 
     /*    public void StopTransition()
@@ -88,13 +90,13 @@ public class PlayerStateManager : MonoBehaviour
         currentState.StateEntry();
         Debug.Log(currentState + ": " + (Time.time - t));
         t = Time.time;
-        c_transitionTimer = StartCoroutine(C_TransitionTimer());
+        c_transitionTimer = StartCoroutine(C_TransitionTimer(currentState.transitionTime));
         c_waitForTransition = null;
     }
 
-    IEnumerator C_TransitionTimer()
+    IEnumerator C_TransitionTimer(float time)
     {
-        yield return new WaitForSeconds(transitionTimer);
+        yield return new WaitForSeconds(time);
         c_transitionTimer = null;
     }
 }

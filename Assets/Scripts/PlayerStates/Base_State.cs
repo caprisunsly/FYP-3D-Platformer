@@ -10,6 +10,7 @@ public abstract class Base_State : MonoBehaviour
     [field: SerializeField] public float speedAccel { get; protected set; } = 150;
     [field: SerializeField] public float speedDecel { get; protected set; } = 150;
     [field: SerializeField] public float gravityMult { get; protected set; } = 1;
+    [field: SerializeField] public bool shouldRotate { get; protected set; } = true;
 
     private void Awake()
     {
@@ -19,7 +20,7 @@ public abstract class Base_State : MonoBehaviour
 
     public virtual void StateEntry()
     {
-        pc.SetSpeed(speedMax, speedAccel, speedDecel, gravityMult);
+        pc.SetSpeed(speedMax, speedAccel, speedDecel, gravityMult, shouldRotate? 1:0);
     }
 
     public virtual void StateUpdate()

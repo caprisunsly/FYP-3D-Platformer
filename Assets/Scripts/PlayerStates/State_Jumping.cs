@@ -10,11 +10,19 @@ public class State_Jumping : Base_State
     [SerializeField] float jumpBufferTime = .2f;
     Coroutine c_jumpCancel, c_jumpBuffer;
     bool fall;
+    int startFrames;
+
+    [SerializeField] Transform ledgeDetection;
+    [SerializeField] float ledgeHeight;
+    [SerializeField] float ledgeSnapDistance;
+    [SerializeField] float minimumHeightFromGround;
 
     public override void StateEntry()
     {
         base.StateEntry();
         fall = false;
+        startFrames = 5;
+        pc.modelAnim.SetBool("Standing", false);
         StartCoroutine(pc.C_OverrideSlopeDirection());
         Jump();
         if (!pc.jumpHeld) Invoke(nameof(JumpCancel), 0.1f); //prevents buffered jumps from the falling state from always being max height
@@ -36,8 +44,14 @@ public class State_Jumping : Base_State
         c_jumpBuffer = StartCoroutine(JumpBuffer());
     }
 
-    public override void StateLogic()
+    public override void StateFixedUpdate()
     {
+        if (startFrames > 0) //prevents the player entering the fall state immediately after jumping
+        {
+            startFrames--;
+            return;
+        }
+        CheckWallHang();
         if (pc.rb.linearVelocity.y > 0) return;
         if (fall) return;
         fall = true;
@@ -45,10 +59,27 @@ public class State_Jumping : Base_State
         sm.ChangeState(sm.stateFalling);
     }
 
+    void CheckWallHang()
+    {
+        if (pc.rb.linearVelocity.y < 3) return;
+        //in front of the player refers to the direction they are moving
+        Vector3 heldDir = pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x;
+
+        //if there is no ground in front of the player, there is no ledge to grab, so return
+        if (!Physics.Raycast(ledgeDetection.position, heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
+        //if there is ground a set amount above the first ray, then we arent at the top of the wall, so return
+        if (Physics.Raycast(ledgeDetection.position + new Vector3(0, ledgeHeight, 0), heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
+        //if distance from ground is less than the minimum, we are too close to the ground to ledge grab, so return
+        if (Physics.Raycast(transform.position, Vector3.down, minimumHeightFromGround, pc.whatIsGround)) return;
+
+        sm.ChangeState(sm.stateLedgeHang);
+    }
+
     private void Jump()
     {
-        if (pc.grounded && pc.jumpsRemaining > 0)
+        if (pc.canJump && pc.jumpsRemaining > 0)
         {
+            pc.canJump = false;
             pc.jumpsRemaining--;
             pc.modelAnim.SetTrigger("Jump");
 

@@ -24,21 +24,23 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public float gravity { get; private set; }
 
     public bool grounded { get; private set; } = false;
-    public bool overrideSlopeDirection;
+    bool overrideSlopeDirection;
     bool oldGrounded;
+    [SerializeField] Vector3 groundedCheckArea;
     [field: SerializeField] public LayerMask whatIsGround { get; private set; }
+    [field: SerializeField] public bool canJump { get; set; }
 
     [SerializeField] float maxSlopeAngle = 35f;
     public Vector3 slopeDirection { get; private set; } = Vector3.up;
     [SerializeField] float characterRotationSpeed;
 
 
-    [Space]
     [Header("Jumping")]
-    [SerializeField] int totalJumps;
-    public int jumpsRemaining;
+    [field: SerializeField] public int totalJumps { get; private set; }
+    [field: SerializeField] public int jumpsRemaining { get; set; }
 
     float gravityMult = 1;
+    int doRotate = 1;
 
     [SerializeField] float coyoteTime;    
 
@@ -74,9 +76,10 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
     }
 
-    public void SetSpeed(float max, float accel, float decel, float gravity)
+    public void SetSpeed(float max, float accel, float decel, float gravity, int rotationMult)
     {
         gravityMult = gravity;
+        doRotate = rotationMult;
 
         if (max == -1 || accel == -1 || decel == -1) //if the state will handle movement
         {
@@ -145,7 +148,7 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         modelAnim.SetFloat("SpeedXZ", (Mathf.Abs(movement.magnitude) / curSpeedMax) + .2f);
         if (movement.magnitude < 0.05f) movement = playerModel.forward;
-        playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(Vector3.ProjectOnPlane(movement, slopeDirection)), characterRotationSpeed);
+        playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(Vector3.ProjectOnPlane(movement, slopeDirection)), characterRotationSpeed * doRotate);
         //slow the player down if they are going above max speed (prevents diagonal movement at high speed)
         if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > curSpeedMax && grounded)
         {
@@ -226,19 +229,27 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(transform.position, groundedCheckArea);
+    }
+
     void CheckGrounded()
     {
+        touchingFloor = false;
         slopeDirection = Vector3.up;
-        Debug.DrawRay(transform.position, Vector3.down * .3f, Color.red, .02f);
-        Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + crouchingHeight, transform.position.z), Vector3.up * standingHeight, Color.red, .02f);
         if (!overrideSlopeDirection)
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, .3f, whatIsGround))
+            if (Physics.CheckBox(transform.position, groundedCheckArea, Quaternion.identity, whatIsGround))
             {
-                if (IsFloor(info.normal))
+                touchingFloor = true;
+
+                if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, groundedCheckArea.y, whatIsGround))
                 {
-                    slopeDirection = info.normal;
-                    touchingFloor = true;
+                    if (IsFloor(info.normal))
+                    {
+                        slopeDirection = info.normal;
+                    }
                 }
             }
         }
@@ -247,12 +258,13 @@ public class PlayerController : MonoBehaviour
         //if OnCollisionStay found a valid floor
         if (touchingFloor)
         {
+            modelAnim.SetBool("Standing", true);
             grounded = true;
             if (oldGrounded != grounded)
             {
                 jumpsRemaining = totalJumps;
                 EnterGrounded.Invoke();
-                modelAnim.SetBool("Standing", true);
+                canJump = true;
                 //counteract the slight slide down that is induced upon landing
             }
             if (c_coyote != null)
@@ -265,14 +277,13 @@ public class PlayerController : MonoBehaviour
         {
             if (c_coyote == null) c_coyote = StartCoroutine(C_CoyoteTime());
         }
-        touchingFloor = false;
     }
 
     private IEnumerator C_CoyoteTime()
     {
+        modelAnim.SetBool("Standing", false);
         yield return new WaitForSeconds(coyoteTime);
         grounded = false;
         ExitGrounded.Invoke();
-        modelAnim.SetBool("Standing", false);
     }
 }
