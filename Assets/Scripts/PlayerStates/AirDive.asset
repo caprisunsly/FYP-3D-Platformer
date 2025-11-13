@@ -18,8 +18,8 @@ MonoBehaviour:
   <speedDecel>k__BackingField: -1
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
-  diveForceH: 800
-  diveForceV: 800
+  diveForceH: 175
+  diveForceV: 100
   diveTime: 0.4
   ledgeHeight: 0
   ledgeSnapDistance: 0

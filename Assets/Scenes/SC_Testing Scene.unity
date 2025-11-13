@@ -7751,6 +7751,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   <canJump>k__BackingField: 0
+  <canDive>k__BackingField: 0
   maxSlopeAngle: 35
   characterRotationSpeed: 0.3
   <totalJumps>k__BackingField: 1
@@ -7858,6 +7859,7 @@ MonoBehaviour:
   <stateJumping>k__BackingField: {fileID: 11400000, guid: f1878c73dfe8577409bb70b9908ddb2f, type: 2}
   <stateFalling>k__BackingField: {fileID: 11400000, guid: 51f785647c6866845a1823bbd26fec5c, type: 2}
   <stateLedgeHang>k__BackingField: {fileID: 11400000, guid: 7d24c9e008d30404cb48049e0a730295, type: 2}
+  <stateAirDive>k__BackingField: {fileID: 11400000, guid: 7c9ccbaa367a16543954153f6c82ca9f, type: 2}
 --- !u!1 &829015233
 GameObject:
   m_ObjectHideFlags: 0
