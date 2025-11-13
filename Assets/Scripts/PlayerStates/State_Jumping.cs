@@ -120,6 +120,13 @@ public class State_Jumping : Base_State
         c_jumpCancel = null;
     }
 
+    public override void DiveStart()
+    {
+        if (pc.canDive == false) return;
+        pc.canDive = false;
+        sm.ChangeState(sm.stateAirDive);
+    }
+
     public override void GroundedStart()
     {
         if (c_jumpBuffer != null)

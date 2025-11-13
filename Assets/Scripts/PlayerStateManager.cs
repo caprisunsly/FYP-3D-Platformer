@@ -9,6 +9,7 @@ public class PlayerStateManager : MonoBehaviour
     [field: SerializeField] public Base_State stateJumping { get; private set; }
     [field: SerializeField] public Base_State stateFalling { get; private set; }
     [field: SerializeField] public Base_State stateLedgeHang { get; private set; }
+    [field: SerializeField] public Base_State stateAirDive { get; private set; }
     Coroutine c_transitionTimer, c_waitForTransition;
 
     PlayerController pc;

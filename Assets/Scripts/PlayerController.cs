@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Vector3 groundedCheckArea;
     [field: SerializeField] public LayerMask whatIsGround { get; private set; }
     [field: SerializeField] public bool canJump { get; set; }
+    [field: SerializeField] public bool canDive { get; set; }
 
     [SerializeField] float maxSlopeAngle = 35f;
     public Vector3 slopeDirection { get; private set; } = Vector3.up;
@@ -266,6 +267,7 @@ public class PlayerController : MonoBehaviour
                 jumpsRemaining = totalJumps;
                 EnterGrounded.Invoke();
                 canJump = true;
+                canDive = true;
                 //counteract the slight slide down that is induced upon landing
             }
             if (c_coyote != null)

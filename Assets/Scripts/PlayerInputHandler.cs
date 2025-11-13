@@ -46,8 +46,8 @@ public class PlayerInputHandler : MonoBehaviour
         }
     }
 
-    public void OnShift(CallbackContext context)
+    public void OnAirDive(CallbackContext context)
     {
-
+        if (context.started) stateManager.currentState.DiveStart();
     }
 }

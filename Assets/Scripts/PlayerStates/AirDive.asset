@@ -9,16 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7535a8f9efd4a3b47b8a86908e29af2b, type: 3}
-  m_Name: Falling
+  m_Script: {fileID: 11500000, guid: efad68a20a1789648b088ee36c4c490c, type: 3}
+  m_Name: AirDive
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  <speedMax>k__BackingField: 17
-  <speedAccel>k__BackingField: 500
-  <speedDecel>k__BackingField: 150
+  <speedMax>k__BackingField: -1
+  <speedAccel>k__BackingField: -1
+  <speedDecel>k__BackingField: -1
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
-  jumpBufferTime: 0.2
-  ledgeHeight: 1
-  ledgeSnapDistance: 0.8
-  minimumHeightFromGround: 3
+  diveForceH: 800
+  diveForceV: 800
+  diveTime: 0.4
+  ledgeHeight: 0
+  ledgeSnapDistance: 0
+  minimumHeightFromGround: 0

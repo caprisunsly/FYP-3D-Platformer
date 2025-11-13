@@ -72,4 +72,8 @@ public abstract class Base_State : ScriptableObject
     {
 
     }
+    public virtual void DiveStart()
+    {
+
+    }
 }

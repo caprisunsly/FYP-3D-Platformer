@@ -9,6 +9,7 @@ public class State_LedgeHang : Base_State
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float yOffsetFromLedge;
     Vector3 point, direction, startPos;
+    [SerializeField] float numberOfFrames, framerate;
     Coroutine c_lerpToLedge;
 
     public override void StateEntry(PlayerController PC, PlayerStateManager SM)
@@ -51,10 +52,10 @@ public class State_LedgeHang : Base_State
         float time = 0;
         while (time < 1)
         {
-            time += 0.34f;
+            time += 1 / numberOfFrames;
             pc.transform.position = Vector3.Lerp(startPos, point, time);
             pc.playerModel.rotation = Quaternion.Slerp(pc.playerModel.rotation, Quaternion.LookRotation(-direction, pc.transform.up), time);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 50/framerate; i++)
             {
                 yield return new WaitForFixedUpdate();
                 i++;

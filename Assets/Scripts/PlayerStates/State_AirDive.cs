@@ -1,38 +1,58 @@
 using System.Collections;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "PlayerState/Falling")]
-public class State_Falling : Base_State
+[CreateAssetMenu(menuName = "PlayerState/AirDive")]
+public class State_AirDive : Base_State
 {
-    [Header("Falling")]
-    Coroutine c_jumpBuffer;
-    [SerializeField] float jumpBufferTime;
+    [Header("Dive")]
+    [SerializeField] float diveForceH = 800f;
+    [SerializeField] float diveForceV = 800f;
+    [SerializeField] float diveTime = .4f;
+    Vector2 dir;
+    Coroutine c_diving;
+
     [SerializeField] float ledgeHeight;
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float minimumHeightFromGround;
 
+
     public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
         base.StateEntry(PC, SM);
-        pc.modelAnim.SetBool("Fall", true);
+        dir = pc.dir;
+        pc.modelAnim.SetBool("Diving", true);
+        c_diving = CoroutineRunner.Instance.StartCoroutine(C_Diving());
     }
 
     public override void StateExit()
     {
         base.StateExit();
-        pc.modelAnim.SetBool("Fall", false);
+        pc.modelAnim.SetBool("Diving", false);
+        if (c_diving != null) CoroutineRunner.Instance.StopCoroutine(c_diving);
     }
 
-    IEnumerator JumpBuffer()
+    IEnumerator C_Diving()
     {
-        yield return new WaitForSeconds(jumpBufferTime);
-         c_jumpBuffer = null;
+        float time = 0;
+
+        pc.rb.linearVelocity = Vector3.zero;
+        Vector3 movement = Vector3.ClampMagnitude(pc.orientation.transform.forward * dir.y + pc.orientation.transform.right * dir.x, 1);
+        pc.rb.AddForce(movement * diveForceH + Vector3.up * diveForceV, ForceMode.Impulse);
+
+        if (dir == Vector2.zero) dir = new Vector2(pc.rb.linearVelocity.x, pc.rb.linearVelocity.z).normalized; //prevents super slow slides when the player slides as they release movement keys
+        while (time < diveTime)
+        {
+            CheckWallHang();
+            time += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+        sm.ChangeState(sm.stateFalling);
     }
 
-    public override void StateFixedUpdate()
-    {
-        if (pc.grounded) sm.ChangeState(sm.stateStanding); //prevents edge case where players jump but get stuck on geometry and don't leave the ground
 
+    void CheckWallHang()
+    {
+        if (pc.rb.linearVelocity.y < 3) return;
         //in front of the player refers to the direction they are moving
         Vector3 heldDir = pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x;
 
@@ -46,35 +66,8 @@ public class State_Falling : Base_State
         sm.ChangeState(sm.stateLedgeHang);
     }
 
-
-    public override void JumpStart()
-    {
-        if (c_jumpBuffer != null)
-        {
-            CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);
-            c_jumpBuffer = null;
-        }
-        c_jumpBuffer = CoroutineRunner.Instance.StartCoroutine(JumpBuffer());
-    }
-
-    public override void DiveStart()
-    {
-        if (pc.canDive == false) return;
-        pc.canDive = false;
-        sm.ChangeState(sm.stateAirDive);
-    }
-
     public override void GroundedStart()
     {
-        if (c_jumpBuffer != null)
-        {
-            pc.canJump = true;
-            sm.ChangeState(sm.stateJumping);
-            CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);
-            c_jumpBuffer = null;
-            return;
-        }
-
         if (pc.crouchHeld)
         {
             if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero)
@@ -82,10 +75,8 @@ public class State_Falling : Base_State
                 sm.ChangeState(sm.stateSliding);
                 return;
             }
-            /*            else sm.ChangeState(sm.stateCrouching);*/
         }
 
         sm.ChangeState(sm.stateStanding);
     }
-
 }

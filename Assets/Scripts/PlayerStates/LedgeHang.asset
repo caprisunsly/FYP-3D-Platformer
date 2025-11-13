@@ -21,3 +21,5 @@ MonoBehaviour:
   ledgeHeight: 1
   ledgeSnapDistance: 0.8
   yOffsetFromLedge: -1
+  numberOfFrames: 3
+  framerate: 15
