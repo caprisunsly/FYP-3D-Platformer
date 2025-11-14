@@ -21,6 +21,7 @@ MonoBehaviour:
   diveForceH: 175
   diveForceV: 100
   diveTime: 0.4
+  diveDelay: 0.03
   ledgeHeight: 0
   ledgeSnapDistance: 0
   minimumHeightFromGround: 0

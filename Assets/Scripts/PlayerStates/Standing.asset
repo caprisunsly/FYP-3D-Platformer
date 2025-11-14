@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Standing
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  <speedMax>k__BackingField: 17
-  <speedAccel>k__BackingField: 1000
-  <speedDecel>k__BackingField: 450
+  <speedMax>k__BackingField: 14
+  <speedAccel>k__BackingField: 800
+  <speedDecel>k__BackingField: 65
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1

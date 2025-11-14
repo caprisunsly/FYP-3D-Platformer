@@ -7,6 +7,7 @@ public class PlayerEffectsHandler : MonoBehaviour
 
     public void PlayParticleSystem(int index)
     {
+        systems[index].Stop(); //makes sure particle system always plays from beginning.
         systems[index].Play();
     }
 

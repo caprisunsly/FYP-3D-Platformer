@@ -15,7 +15,7 @@ public class State_Standing : Base_State
 
     public override void CrouchStart()
     {
-        if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero) sm.ChangeState(sm.stateSliding);
+        if (pc.rb.linearVelocity.magnitude > 0.5f && pc.gatedDir != Vector2.zero) sm.ChangeState(sm.stateSliding);
 /*        else sm.ChangeState(sm.stateCrouching);*/
     }
 }

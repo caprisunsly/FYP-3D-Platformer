@@ -9,6 +9,7 @@ public class State_Sliding : Base_State
     [SerializeField] float slideMaxSpeed = 400;
     [SerializeField] float slideTime = 400;
     [SerializeField] float jumpBufferTime;
+    [SerializeField] float slopeAngleMultiplier;
     Vector2 dir;
 
     Coroutine c_sliding, c_jumpBuffer;
@@ -20,8 +21,8 @@ public class State_Sliding : Base_State
     public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
         base.StateEntry(PC, SM);
-        veer = pc.dir.x;
-        dir = pc.dir;
+        veer = pc.gatedDir.x;
+        dir = pc.gatedDir;
         offset = pc.cl.center.y;
         pc.cl.height = pc.crouchingHeight;
         pc.cl.center = new Vector3(0, -pc.crouchingHeight / 2 + offset, 0);
@@ -52,6 +53,11 @@ public class State_Sliding : Base_State
         if (dir == Vector2.zero) dir = new Vector2(pc.rb.linearVelocity.x, pc.rb.linearVelocity.z).normalized; //prevents super slow slides when the player slides as they release movement keys
         while (time < slideTime || !canExit)
         {
+            float slopeAngle = Vector3.Angle(pc.slopeDirection, new Vector3(pc.rb.linearVelocity.x, 0, pc.rb.linearVelocity.z));
+            if (slopeAngle > 90) slopeAngle += slopeAngle * .3f; //makes upward slopes more punishing and slower
+
+            float appliedMax = slideMaxSpeed * (1 + (90 - slopeAngle) / 45 * slopeAngleMultiplier); //increase max speed if on a downward slope
+            
             //if something is found, cant exit crouch due to low ceiling bugs.
             canExit = !Physics.BoxCast(pc.transform.position, new Vector3(1, pc.crouchingHeight, 1), pc.transform.up, Quaternion.identity, 2, pc.whatIsGround);
 
@@ -59,11 +65,10 @@ public class State_Sliding : Base_State
             Vector3 movement = Vector3.ClampMagnitude(pc.orientation.transform.forward * dir.y + pc.orientation.transform.right * dir.x, 1);
 
             //only apply the force if we're still below the max speed threshold
-            if (pc.rb.linearVelocity.magnitude < slideMaxSpeed)
+            if (pc.rb.linearVelocity.magnitude < appliedMax)
             {
                 //Apply forces to move player
                 pc.rb.AddForce(Vector3.ProjectOnPlane(movement, pc.slopeDirection).normalized * slideAccel);
-
             }
             time += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();

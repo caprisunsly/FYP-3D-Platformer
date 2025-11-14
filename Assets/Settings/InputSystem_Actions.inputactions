@@ -53,17 +53,6 @@
             ],
             "bindings": [
                 {
-                    "name": "",
-                    "id": "978bfe49-cc26-4a3d-ab7b-7d7a29327403",
-                    "path": "<Gamepad>/leftStick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
                     "name": "WASD",
                     "id": "00ca640b-d935-4593-8157-c05846ea39b3",
                     "path": "Dpad",
@@ -164,11 +153,22 @@
                 },
                 {
                     "name": "",
+                    "id": "b6772dd2-1d79-44d1-a8d5-44d6a9b73b58",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XB;PS;NS",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "c1f7a91b-d0fd-4a62-997e-7fb9b69bf235",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
+                    "processors": "StickDeadzone",
+                    "groups": "XB;PS;NS",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -178,8 +178,8 @@
                     "id": "8c8e490b-c610-4785-884f-f04217b23ca4",
                     "path": "<Pointer>/delta",
                     "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse;Touch",
+                    "processors": "ScaleVector2(x=0.1,y=0.1)",
+                    "groups": ";Keyboard&Mouse",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -201,7 +201,7 @@
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Gamepad",
+                    "groups": "XB;PS;NS",
                     "action": "Jump",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -209,10 +209,10 @@
                 {
                     "name": "",
                     "id": "4f4649ac-64a8-4a73-af11-b3faef356a4d",
-                    "path": "<Gamepad>/buttonEast",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Gamepad",
+                    "groups": "XB;PS;NS",
                     "action": "Crouch",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -235,6 +235,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
+                    "action": "AirDive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3aa85237-2c76-40a7-9f64-7cc1e32f588e",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XB;PS;NS",
                     "action": "AirDive",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -354,7 +365,7 @@
                     "path": "<Gamepad>/leftStick/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -365,7 +376,7 @@
                     "path": "<Gamepad>/rightStick/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -376,7 +387,7 @@
                     "path": "<Gamepad>/leftStick/down",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -387,7 +398,7 @@
                     "path": "<Gamepad>/rightStick/down",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -398,7 +409,7 @@
                     "path": "<Gamepad>/leftStick/left",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -409,7 +420,7 @@
                     "path": "<Gamepad>/rightStick/left",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -420,7 +431,7 @@
                     "path": "<Gamepad>/leftStick/right",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -431,7 +442,7 @@
                     "path": "<Gamepad>/rightStick/right",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -442,7 +453,7 @@
                     "path": "<Gamepad>/dpad",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": "XB",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -607,7 +618,7 @@
                     "path": "*/{Submit}",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
+                    "groups": "Keyboard&Mouse;Touch;Joystick;XR;XB",
                     "action": "Submit",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -618,7 +629,7 @@
                     "path": "*/{Cancel}",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
+                    "groups": "Keyboard&Mouse;Touch;Joystick;XR;XB",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -776,44 +787,33 @@
             ]
         },
         {
-            "name": "Gamepad",
-            "bindingGroup": "Gamepad",
+            "name": "XB",
+            "bindingGroup": "XB",
             "devices": [
                 {
-                    "devicePath": "<Gamepad>",
+                    "devicePath": "<XInputController>",
                     "isOptional": false,
                     "isOR": false
                 }
             ]
         },
         {
-            "name": "Touch",
-            "bindingGroup": "Touch",
+            "name": "PS",
+            "bindingGroup": "PS",
             "devices": [
                 {
-                    "devicePath": "<Touchscreen>",
+                    "devicePath": "<DualShockGamepad>",
                     "isOptional": false,
                     "isOR": false
                 }
             ]
         },
         {
-            "name": "Joystick",
-            "bindingGroup": "Joystick",
+            "name": "NS",
+            "bindingGroup": "NS",
             "devices": [
                 {
-                    "devicePath": "<Joystick>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "XR",
-            "bindingGroup": "XR",
-            "devices": [
-                {
-                    "devicePath": "<XRController>",
+                    "devicePath": "<SwitchProControllerHID>",
                     "isOptional": false,
                     "isOR": false
                 }

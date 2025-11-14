@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-
     public Transform hhhh;
     [field: SerializeField] public Transform playerCam { get; private set; }
     [field: SerializeField] public Transform orientation { get; private set; }
@@ -28,6 +27,7 @@ public class PlayerController : MonoBehaviour
     bool overrideSlopeDirection;
     bool oldGrounded;
     [SerializeField] Vector3 groundedCheckArea;
+    [SerializeField] Vector3 closeFloorCheckArea;
     [field: SerializeField] public LayerMask whatIsGround { get; private set; }
     [field: SerializeField] public bool canJump { get; set; }
     [field: SerializeField] public bool canDive { get; set; }
@@ -44,17 +44,21 @@ public class PlayerController : MonoBehaviour
     float gravityMult = 1;
     int doRotate = 1;
 
-    [SerializeField] float coyoteTime;    
+    [SerializeField] float coyoteTime;
 
-    public Vector2 dir = Vector2.zero;
+    [field: SerializeField] public Vector2 gatedDir { get; set; } = Vector2.zero; //to be used for movement. locks the player to 8 directions, more predictable movement
+    [field: SerializeField] public Vector2 ungatedDir { get; set; } = Vector2.zero; //to be used for extra cases like the air dive. more precise, wont screw the player over
 
-    bool touchingFloor, onSlope;
+
+    bool touchingFloor;
     Coroutine c_coyote, c_movement;
 
     public static event Action EnterGrounded;
     public static event Action ExitGrounded;
 
     public bool crouchHeld, jumpHeld, moving;
+
+    public float jumpedFrom { get; set; }//store where the player jumped from
 
     void Awake()
     {
@@ -102,7 +106,7 @@ public class PlayerController : MonoBehaviour
         overrideSlopeDirection = false;
     }
 
-    public void Movement(Vector2 dir)
+    public void Movement(Vector2 gatedDir, Vector2 ungatedDir)
     {
         if (c_movement != null)
         {
@@ -110,9 +114,10 @@ public class PlayerController : MonoBehaviour
             c_movement = null;
         }
         moving = true;
-        c_movement = StartCoroutine(C_Movement(dir));
-        this.dir = dir;
-        modelAnim.SetInteger("InputXZ", Mathf.RoundToInt(dir.magnitude));
+        c_movement = StartCoroutine(C_Movement(gatedDir));
+        this.gatedDir = gatedDir;
+        this.ungatedDir = ungatedDir;
+        modelAnim.SetInteger("InputXZ", Mathf.RoundToInt(this.ungatedDir.magnitude));
     }
 
     private IEnumerator C_Movement(Vector2 dir)
@@ -158,7 +163,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //slows the player down if they arent inputting anything
-        if (dir.magnitude == 0) FrictionForce();
+        if (ungatedDir.magnitude == 0) FrictionForce();
     }
 
     private void FrictionForce()
@@ -170,15 +175,15 @@ public class PlayerController : MonoBehaviour
         //Counter movement. This causes some funky stuff when the player jumps currently
         if (Mathf.Abs(vel.x) > 0.01f)
         {
-            rb.AddForce(curSpeedDecel * new Vector3(-vel.x, 0, 0) * .175f);
+            rb.AddForce(curSpeedDecel * new Vector3(-rb.linearVelocity.x, 0, 0));
         }
-        else if (Mathf.Abs(vel.x) < 0.01f && Mathf.Abs(vel.x) > 0) rb.linearVelocity = new Vector3(0, vel.y, vel.z);
+        else if (Mathf.Abs(vel.x) <= 0.01f && Mathf.Abs(vel.x) > 0) rb.linearVelocity = new Vector3(0, vel.y, vel.z);
         if (Mathf.Abs(vel.z) > 0.01f)
         {
-            rb.AddForce(curSpeedDecel * new Vector3(0, 0, -vel.z) * .175f);
+            rb.AddForce(curSpeedDecel * new Vector3(0, 0, -rb.linearVelocity.z));
         }
         //changed to rb reference for the edge case that both happen at the same time. Wouldnt want this to overrwrite the change the other has made with the value of vel
-        else if (Mathf.Abs(vel.x) < 0.01f && Mathf.Abs(vel.x) > 0) rb.linearVelocity = new Vector3(rb.linearVelocity.x, vel.y, 0);
+        else if (Mathf.Abs(vel.x) <= 0.01f && Mathf.Abs(vel.x) > 0) rb.linearVelocity = new Vector3(rb.linearVelocity.x, vel.y, 0);
     }
 
     private void CameraOrientation()
@@ -234,6 +239,7 @@ public class PlayerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, groundedCheckArea);
+        Gizmos.DrawWireCube(transform.position, closeFloorCheckArea);
     }
 
     void CheckGrounded()
@@ -242,7 +248,7 @@ public class PlayerController : MonoBehaviour
         slopeDirection = Vector3.up;
         if (!overrideSlopeDirection)
         {
-            if (Physics.CheckBox(transform.position, groundedCheckArea, Quaternion.identity, whatIsGround))
+            if (Physics.CheckBox(transform.position, closeFloorCheckArea, Quaternion.identity, whatIsGround))
             {
                 touchingFloor = true;
 
@@ -257,18 +263,22 @@ public class PlayerController : MonoBehaviour
         }
 
         oldGrounded = grounded;
-        //if OnCollisionStay found a valid floor
+        //if CheckBox found a valid floor
         if (touchingFloor)
         {
             modelAnim.SetBool("Standing", true);
-            grounded = true;
-            if (oldGrounded != grounded)
+            if (Physics.CheckBox(transform.position, groundedCheckArea, Quaternion.identity, whatIsGround))
             {
-                jumpsRemaining = totalJumps;
-                EnterGrounded.Invoke();
-                canJump = true;
-                canDive = true;
-                //counteract the slight slide down that is induced upon landing
+                grounded = true;
+                if (oldGrounded != grounded)
+                {
+                    jumpsRemaining = totalJumps;
+                    EnterGrounded.Invoke();
+                    canJump = true;
+                    canDive = true;
+                    jumpedFrom = 0;
+                    //counteract the slight slide down that is induced upon landing on a slope
+                }
             }
             if (c_coyote != null)
             {

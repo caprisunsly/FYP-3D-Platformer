@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Jumping
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  <speedMax>k__BackingField: 17
-  <speedAccel>k__BackingField: 350
+  <speedMax>k__BackingField: 14
+  <speedAccel>k__BackingField: 200
   <speedDecel>k__BackingField: 0
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
@@ -23,4 +23,4 @@ MonoBehaviour:
   jumpBufferTime: 0.2
   ledgeHeight: 1
   ledgeSnapDistance: 0.8
-  minimumHeightFromGround: 3
+  minimumHeightFromGround: 1.5

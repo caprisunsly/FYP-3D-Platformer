@@ -70,9 +70,9 @@ public class PlayerStateManager : MonoBehaviour
             return;
         }
         currentState.StateExit();
+        Debug.Log(currentState + " -> " + newState);
         currentState = newState;
         currentState.StateEntry(pc, this);
-        Debug.Log(currentState + ": " + (Time.time - t));
         t = Time.time;
         c_transitionTimer = StartCoroutine(C_TransitionTimer(currentState.transitionTime));
     }

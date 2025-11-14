@@ -24,9 +24,10 @@ public class State_Jumping : Base_State
         startFrames = 5;
         pc.modelAnim.SetBool("Standing", false);
         CoroutineRunner.Instance.StartCoroutine(pc.C_OverrideSlopeDirection());
+        pc.jumpedFrom = pc.transform.position.y;
         Jump();
-/*        if (!pc.jumpHeld) CoroutineRunner.Instance.Invoke(nameof(JumpCancel), 0.1f); //prevents buffered jumps from the falling state from always being max height
-*/    }
+        if (!pc.jumpHeld) CoroutineRunner.Instance.StartCoroutine(C_DelayedJumpCancel()); //prevents buffered jumps from always being max height
+    }
 
     IEnumerator JumpBuffer()
     {
@@ -46,7 +47,7 @@ public class State_Jumping : Base_State
 
     public override void StateFixedUpdate()
     {
-        if (startFrames > 0) //prevents the player entering the fall state immediately after jumping
+        if (startFrames > 0) //prevents the player entering the fall state immediately after jumping because velocity y on frame 1 is 0
         {
             startFrames--;
             return;
@@ -63,14 +64,14 @@ public class State_Jumping : Base_State
     {
         if (pc.rb.linearVelocity.y < 3) return;
         //in front of the player refers to the direction they are moving
-        Vector3 heldDir = pc.orientation.transform.forward * pc.dir.y + pc.orientation.transform.right * pc.dir.x;
+        Vector3 heldDir = pc.orientation.transform.forward * pc.ungatedDir.y + pc.orientation.transform.right * pc.ungatedDir.x;
 
         //if there is no ground in front of the player, there is no ledge to grab, so return
         if (!Physics.Raycast(pc.ledgeDetection.position, heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
         //if there is ground a set amount above the first ray, then we arent at the top of the wall, so return
         if (Physics.Raycast(pc.ledgeDetection.position + new Vector3(0, ledgeHeight, 0), heldDir, ledgeSnapDistance, pc.whatIsGround)) return;
         //if distance from ground is less than the minimum, we are too close to the ground to ledge grab, so return
-        if (Physics.Raycast(pc.transform.position, Vector3.down, minimumHeightFromGround, pc.whatIsGround)) return;
+        if (Physics.Raycast(pc.transform.position, Vector3.down, minimumHeightFromGround, pc.whatIsGround) && pc.transform.position.y - pc.jumpedFrom < minimumHeightFromGround) return;
 
         sm.ChangeState(sm.stateLedgeHang);
     }
@@ -99,6 +100,12 @@ public class State_Jumping : Base_State
         }
     }
 
+    IEnumerator C_DelayedJumpCancel()
+    {
+        yield return new WaitForSeconds(0.1f);
+        JumpCancel();
+    }
+
     public override void JumpCancel()
     {
         if (c_jumpCancel != null)
@@ -107,7 +114,6 @@ public class State_Jumping : Base_State
             c_jumpCancel = null;
         }
         c_jumpCancel = CoroutineRunner.Instance.StartCoroutine(C_JumpCancel());
-        int i = 0;
     }
 
     public IEnumerator C_JumpCancel()
@@ -137,7 +143,7 @@ public class State_Jumping : Base_State
 
         if (pc.crouchHeld) 
         {
-            if (pc.rb.linearVelocity.magnitude > 0.5f && pc.dir != Vector2.zero)
+            if (pc.rb.linearVelocity.magnitude > 0.5f && pc.gatedDir != Vector2.zero)
             {
                 sm.ChangeState(sm.stateSliding);
                 return;
