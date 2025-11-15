@@ -15,11 +15,13 @@ public class State_AirDive : Base_State
     [SerializeField] float ledgeHeight;
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float minimumHeightFromGround;
+    LedgeCastData ledgeData;
 
 
     public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
         base.StateEntry(PC, SM);
+        ledgeData = new LedgeCastData(pc, ledgeHeight, ledgeSnapDistance, minimumHeightFromGround);
         c_diving = CoroutineRunner.Instance.StartCoroutine(C_Diving());
     }
 
@@ -50,28 +52,14 @@ public class State_AirDive : Base_State
         pc.modelAnim.SetTrigger("Dive");
         while (time < diveTime)
         {
-            CheckWallHang();
+            if (LedgeCast.Check(ledgeData, pc.ungatedDir))
+            {
+                sm.ChangeState(sm.stateLedgeHang);
+            }
             time += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
         sm.ChangeState(sm.stateFalling);
-    }
-
-    void CheckWallHang()
-    {
-        if (pc.rb.linearVelocity.y < 3) return;
-        //in front of the player refers to the direction they are moving
-        Vector3 leftRay = pc.orientation.transform.forward * pc.ungatedDir.y + pc.orientation.transform.right * (pc.ungatedDir.x + 1);
-        Vector3 rightRay = pc.orientation.transform.forward * pc.ungatedDir.y + pc.orientation.transform.right * (pc.ungatedDir.x - 1);
-
-        //if there is no ground in front of the player, there is no ledge to grab, so return
-        if (!Physics.Raycast(pc.ledgeDetection.position, leftRay, ledgeSnapDistance, pc.whatIsGround) && !Physics.Raycast(pc.ledgeDetection.position, rightRay, ledgeSnapDistance, pc.whatIsGround)) return;
-        //if there is ground a set amount above the first ray, then we arent at the top of the wall, so return
-        if (Physics.Raycast(pc.ledgeDetection.position + new Vector3(0, ledgeHeight, 0), leftRay, ledgeSnapDistance, pc.whatIsGround)) return;
-        //if distance from ground is less than the minimum, we are too close to the ground to ledge grab, so return
-        if (Physics.Raycast(pc.transform.position, Vector3.down, minimumHeightFromGround, pc.whatIsGround) && pc.transform.position.y - pc.jumpedFrom < minimumHeightFromGround) return;
-
-        sm.ChangeState(sm.stateLedgeHang);
     }
 
     public override void GroundedStart()
@@ -87,4 +75,48 @@ public class State_AirDive : Base_State
 
         sm.ChangeState(sm.stateStanding);
     }
+}
+
+public class LedgeCast : MonoBehaviour
+{
+    public static bool Check(LedgeCastData data, Vector2 direction)
+    {
+        //in front of the player refers to the direction they are moving
+        Vector3 forwardRay = data.orientation.forward * direction.y + data.orientation.right * direction.x;
+
+        //if there is no ground in front of the player to the left or right (to fill edge cases) so return
+        if (!Physics.Raycast(data.ledgeDetection.position, forwardRay + data.orientation.right, data.distance, data.whatIsGround) && 
+            !Physics.Raycast(data.ledgeDetection.position, forwardRay - data.orientation.right, data.distance, data.whatIsGround)) 
+            return false;
+
+        //if there is ground a set amount above the first ray, then we arent at the top of the wall, so return
+        if (Physics.Raycast(data.ledgeDetection.position + new Vector3(0, data.height, 0), forwardRay, data.distance + 1, data.whatIsGround)) return false;
+
+        //if distance from ground is less than the minimum, we are too close to the ground to ledge grab, so return
+        if (Physics.Raycast(data.orientation.position, Vector3.down, data.groundHeight, data.whatIsGround) && data.orientation.position.y - data.startHeight < data.groundHeight) return false;
+
+        return true;
+    }
+}
+
+public struct LedgeCastData
+{
+    public LedgeCastData(PlayerController pc, float Height, float Distance, float GroundHeight)
+    {
+        orientation = pc.orientation;
+        ledgeDetection = pc.ledgeDetection;
+        whatIsGround = pc.whatIsGround;
+        startHeight = pc.jumpedFrom;
+        height = Height;
+        distance = Distance;
+        groundHeight = GroundHeight;
+    }
+
+    public Transform orientation;
+    public Transform ledgeDetection;
+    public LayerMask whatIsGround;
+    public float startHeight;
+    public float height;
+    public float distance;
+    public float groundHeight;
 }

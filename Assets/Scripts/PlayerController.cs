@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Vector2 ungatedDir { get; set; } = Vector2.zero; //to be used for extra cases like the air dive. more precise, wont screw the player over
 
 
-    bool touchingFloor;
+    bool floorClose;
     Coroutine c_coyote, c_movement;
 
     public static event Action EnterGrounded;
@@ -244,13 +244,13 @@ public class PlayerController : MonoBehaviour
 
     void CheckGrounded()
     {
-        touchingFloor = false;
+        floorClose = false;
         slopeDirection = Vector3.up;
         if (!overrideSlopeDirection)
         {
             if (Physics.CheckBox(transform.position, closeFloorCheckArea, Quaternion.identity, whatIsGround))
             {
-                touchingFloor = true;
+                floorClose = true;
 
                 if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, groundedCheckArea.y, whatIsGround))
                 {
@@ -264,7 +264,7 @@ public class PlayerController : MonoBehaviour
 
         oldGrounded = grounded;
         //if CheckBox found a valid floor
-        if (touchingFloor)
+        if (floorClose)
         {
             modelAnim.SetBool("Standing", true);
             if (Physics.CheckBox(transform.position, groundedCheckArea, Quaternion.identity, whatIsGround))

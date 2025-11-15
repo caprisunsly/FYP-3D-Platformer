@@ -10,10 +10,12 @@ public class State_Falling : Base_State, ILedgeCheck
     [SerializeField] float ledgeHeight;
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float minimumHeightFromGround;
+    [SerializeField] LedgeCastData ledgeData;
 
     public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
         base.StateEntry(PC, SM);
+        ledgeData = new LedgeCastData(pc, ledgeHeight, ledgeSnapDistance, minimumHeightFromGround);
         pc.modelAnim.SetBool("Fall", true);
         if (pc.jumpedFrom == 0) pc.jumpedFrom = pc.transform.position.y;
     }
@@ -33,15 +35,8 @@ public class State_Falling : Base_State, ILedgeCheck
     public override void StateFixedUpdate()
     {
         if (pc.grounded) sm.ChangeState(sm.stateStanding); //prevents edge case where players jump but get stuck on geometry and don't leave the ground
-
-        sm.ChangeState(sm.stateLedgeHang);
+        if (LedgeCast.Check(ledgeData, pc.ungatedDir)) sm.ChangeState(sm.stateLedgeHang);
     }
-
-    public bool CheckLedge()
-    {
-
-    }
-
 
     public override void JumpStart()
     {

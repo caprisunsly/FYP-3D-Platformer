@@ -1711,7 +1711,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.08193703, y: 0, z: 0, w: 0.9966375}
-  m_LocalPosition: {x: -116.63999, y: 7.7431345, z: 35.011}
+  m_LocalPosition: {x: -116.63999, y: 7.739824, z: 35.031}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2127,7 +2127,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 347cb6ce85f04bf4baca7472f236df45, type: 3}
       propertyPath: m_Name
-      value: fox_1
+      value: PlayerModel
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 347cb6ce85f04bf4baca7472f236df45, type: 3}
       propertyPath: m_IsActive
@@ -6865,10 +6865,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6584ac95aabc94bb72881f16e4e22f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 823412771}
+  followTarget: {fileID: 823412771}
+  lookTarget: {fileID: 776017308}
   hardLimitDown: 5
   offset: 1
   damping: 1
+  timeToRecenter: 0.6
+  CMFollow: {fileID: 1287907455}
 --- !u!1 &770669168
 GameObject:
   m_ObjectHideFlags: 0
@@ -7879,7 +7882,19 @@ MonoBehaviour:
     m_ActionId: 351f2ccd-1f9f-44bf-9bec-d62ac5c5f408
     m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 770158214}
+        m_TargetAssemblyTypeName: PlayerCamLookTarget, Assembly-CSharp
+        m_MethodName: CameraInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 6b444451-8a00-4d00-a97e-f47457f736a8
     m_ActionName: 'Player/Look[/Mouse/delta]'
   - m_PersistentCalls:
@@ -7970,6 +7985,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b159d090-5984-46e8-86fc-73f2692fb7e9
     m_ActionName: 'Player/AirDive[/Keyboard/shift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 770158214}
+        m_TargetAssemblyTypeName: PlayerCamLookTarget, Assembly-CSharp
+        m_MethodName: CameraLock
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: a5f91dda-104f-4ee2-8808-5e8164f6172b
+    m_ActionName: 'Player/Camera Lock[/XInputControllerWindows/rightShoulder,/Mouse/middleButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: XB
   m_DefaultActionMap: Player
@@ -11183,7 +11214,7 @@ MonoBehaviour:
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
   TargetOffset: {x: 0, y: 1, z: 0}
-  Damping: {x: 0, y: 0}
+  Damping: {x: 0.3, y: 0.3}
   Lookahead:
     Enabled: 0
     Time: 0
@@ -11224,13 +11255,13 @@ MonoBehaviour:
   RecenteringTarget: 3
   HorizontalAxis:
     Value: 0
-    Center: 0
+    Center: -0
     Range: {x: -180, y: 180}
     Wrap: 1
     Recentering:
-      Enabled: 0
-      Wait: 2
-      Time: 1
+      Enabled: 1
+      Wait: 0
+      Time: 0.3
     Restrictions: 0
   VerticalAxis:
     Value: 17.5
@@ -11238,9 +11269,9 @@ MonoBehaviour:
     Range: {x: -15, y: 70}
     Wrap: 0
     Recentering:
-      Enabled: 0
-      Wait: 1
-      Time: 2
+      Enabled: 1
+      Wait: 0
+      Time: 0.3
     Restrictions: 0
   RadialAxis:
     Value: 1
@@ -11276,7 +11307,7 @@ MonoBehaviour:
     Enabled: 1
     DistanceLimit: 0
     MinimumOcclusionTime: 0
-    CameraRadius: 0.01
+    CameraRadius: 0.03
     UseFollowTarget:
       Enabled: 0
       YOffset: 0
