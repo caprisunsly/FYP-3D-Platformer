@@ -8,6 +8,7 @@ public class State_LedgeHang : Base_State
     [SerializeField] float ledgeHeight;
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float yOffsetFromLedge;
+    [SerializeField] float jumpForce;
     Vector3 point, direction, startPos;
     [SerializeField] float numberOfFrames, framerate;
     Coroutine c_lerpToLedge;
@@ -73,6 +74,7 @@ public class State_LedgeHang : Base_State
     public override void JumpStart()
     {
         sm.ChangeState(sm.stateJumping);
+        pc.rb.AddForce(Vector3.ClampMagnitude(pc.orientation.transform.forward * pc.ungatedDir.y + pc.orientation.transform.right * pc.ungatedDir.x, 1) * jumpForce, ForceMode.Impulse);
         pc.modelAnim.SetTrigger("Jump");
     }
 
