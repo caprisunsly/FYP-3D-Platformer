@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1ba3e89b73d8f14d9bec6bc1f556001, type: 3}
+  m_Name: State_TailSwipe
+  m_EditorClassIdentifier: 
+  <transitionTime>k__BackingField: 0
+  <speedMax>k__BackingField: 14
+  <speedAccel>k__BackingField: 300
+  <speedDecel>k__BackingField: 20
+  <gravityMult>k__BackingField: 1
+  <shouldRotate>k__BackingField: 1
+  swipeTime: 0.3
+  swipeDelay: 0.05
