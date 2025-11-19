@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Transform hhhh;
     [field: SerializeField] public Transform playerCam { get; private set; }
     [field: SerializeField] public Transform orientation { get; private set; }
     [field: SerializeField] public Transform playerModel { get; private set; }
@@ -214,7 +213,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    private void OnCollisionEnter(Collision collision)
+/*    private void OnCollisionEnter(Collision collision)
     {
         if (whatIsGround != (whatIsGround | (1 << collision.gameObject.layer))) return;
         if (IsFloor(collision.GetContact(0).normal))
@@ -222,7 +221,7 @@ public class PlayerController : MonoBehaviour
             ContactPoint hit = collision.GetContact(0);
             hhhh.rotation = Quaternion.FromToRotation(collision.GetContact(0).normal, Vector3.up) * hhhh.rotation;
         }
-    }
+    }*/
 
     IEnumerator C_NegateSlopeSlide()
     {

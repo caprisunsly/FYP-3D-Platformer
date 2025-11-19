@@ -40,6 +40,11 @@ public class PlayerInputHandler : MonoBehaviour
         axisController.Controllers[1].Input.Gain = -gain;
     }
 
+    public void ToggleInput(bool state)
+    {
+        GetComponent<PlayerInput>().enabled = state;
+    }
+
     public void OnMove(CallbackContext context)
     {
         Vector2 input = Vector2.ClampMagnitude(context.ReadValue<Vector2>(), 1);
