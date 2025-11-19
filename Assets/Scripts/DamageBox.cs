@@ -2,14 +2,8 @@ using UnityEngine;
 
 public class DamageBox : MonoBehaviour
 {
-    int damage;
-    Transform parent;
-
-    void InitializeDamageBox(int d, Transform p)
-    {
-        damage = d;
-        parent = p;
-    }
+    [SerializeField] int damage;
+    [SerializeField] Transform parent;
 
     private void OnTriggerEnter(Collider other)
     {
