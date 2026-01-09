@@ -72,8 +72,8 @@ public class PlayerStateManager : MonoBehaviour
             return;
         }
         currentState.StateExit();
-        Debug.Log(currentState + " -> " + newState);
-        prevState = currentState;
+/*        Debug.Log(currentState + " -> " + newState);
+*/        prevState = currentState;
         currentState = newState;
         currentState.StateEntry(pc, this);
         t = Time.time;

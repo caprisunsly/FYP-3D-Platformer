@@ -1,5 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.UIElements;
+using static UnityEngine.UI.Image;
 
 [CreateAssetMenu(menuName = "PlayerState/AirDive")]
 public class State_AirDive : Base_State
@@ -96,6 +100,34 @@ public class LedgeCast : MonoBehaviour
         if (Physics.Raycast(data.orientation.position, Vector3.down, data.groundHeight, data.whatIsGround) && data.orientation.position.y - data.startHeight < data.groundHeight) return false;
 
         return true;
+    }
+
+    public static RaycastHit CheckBox(LedgeCastData data, Vector2 direction, float wallAngle)
+    {
+        //in front of the player refers to the direction they are moving
+        Vector3 forwardRay = data.orientation.forward * direction.y + data.orientation.right * direction.x;
+
+        Vector3 size = new Vector3(data.distance, 0.1f, data.distance);
+
+        Debug.Log("Area Test");
+        //if there is no wall near the player, return false
+        Physics.BoxCast(data.orientation.position, size, Vector3.down, out RaycastHit hit, Quaternion.identity, data.height, data.whatIsGround);
+
+        DebugBoxCast.SimpleDrawBoxCast(data.orientation.position, size / 2, Quaternion.identity, direction, data.height, Color.red);
+
+        if (hit.collider == null) 
+            return new RaycastHit();
+
+        Debug.Log("Ground Distance Test");
+        //if distance from ground is less than the minimum, we are too close to the ground to wall bounce, so return
+        if (Physics.Raycast(data.orientation.position, Vector3.down, data.groundHeight, data.whatIsGround) && data.orientation.position.y - data.startHeight < data.groundHeight) return new RaycastHit();
+
+        Debug.Log("Angle Test");
+        //check collision normals to make sure they are considered walls.
+        if (Vector3.Angle(Vector3.up,hit.normal) < wallAngle) return new RaycastHit();
+        Debug.Log("success");
+
+        return hit;
     }
 }
 

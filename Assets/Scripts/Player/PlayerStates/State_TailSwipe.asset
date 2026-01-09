@@ -20,3 +20,7 @@ MonoBehaviour:
   <shouldRotate>k__BackingField: 1
   swipeTime: 0.3
   swipeDelay: 0.05
+  boxSizeY: 0.5
+  boxSizeXZ: 3
+  minimumHeightFromGround: 0.5
+  minimumWallAngle: 0
