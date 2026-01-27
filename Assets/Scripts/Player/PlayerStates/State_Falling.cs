@@ -24,6 +24,7 @@ public class State_Falling : Base_State
     {
         base.StateExit();
         pc.modelAnim.SetBool("Fall", false);
+        pc.multiplier = 1f; 
     }
 
     IEnumerator JumpBuffer()
@@ -36,6 +37,7 @@ public class State_Falling : Base_State
     {
         if (pc.grounded) sm.ChangeState(sm.stateStanding); //prevents edge case where players jump but get stuck on geometry and don't leave the ground
         if (LedgeCast.Check(ledgeData, pc.ungatedDir)) sm.ChangeState(sm.stateLedgeHang);
+        if (pc.floorClose) pc.multiplier = 0.2f;
     }
 
     public override void JumpStart()
@@ -43,6 +45,11 @@ public class State_Falling : Base_State
         //check the player's distance from the ground
         //if there is ground within a certain distance, buffer a jump
         //otherwise perform an air dive
+        if (pc.jumpsRemaining > 0)
+        {
+            sm.ChangeState(sm.stateJumping);
+            return;
+        }
         if (c_jumpBuffer != null)
         {
             CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);

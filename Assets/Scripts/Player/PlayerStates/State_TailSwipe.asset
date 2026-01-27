@@ -13,14 +13,12 @@ MonoBehaviour:
   m_Name: State_TailSwipe
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  <speedMax>k__BackingField: 14
+  <speedMax>k__BackingField: 12
   <speedAccel>k__BackingField: 300
   <speedDecel>k__BackingField: 20
-  <gravityMult>k__BackingField: 1
+  <gravityMult>k__BackingField: 0.9
   <shouldRotate>k__BackingField: 1
   swipeTime: 0.3
   swipeDelay: 0.05
-  boxSizeY: 0.5
-  boxSizeXZ: 3
-  minimumHeightFromGround: 0.5
-  minimumWallAngle: 0
+  minimumHeightFromGround: 0
+  minimumWallAngle: 40

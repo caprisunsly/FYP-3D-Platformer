@@ -38,8 +38,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("Jumping")]
     [field: SerializeField] public int totalJumps { get; private set; }
+    [field: SerializeField] public int totalAirSwipes { get; private set; }
     [field: SerializeField] public int jumpsRemaining { get; set; }
-
+    [field: SerializeField] public int divesRemaining { get; set; }
+    [field: SerializeField] public int airSwipesRemaining { get; set; }
     float gravityMult = 1;
     int doRotate = 1;
 
@@ -49,7 +51,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Vector2 ungatedDir { get; set; } = Vector2.zero; //to be used for extra cases like the air dive. more precise, wont screw the player over
 
 
-    bool floorClose;
+    public bool floorClose { get; private set; }
     Coroutine c_coyote, c_movement;
 
     public static event Action EnterGrounded;
@@ -119,6 +121,8 @@ public class PlayerController : MonoBehaviour
         modelAnim.SetInteger("InputXZ", Mathf.RoundToInt(this.ungatedDir.magnitude));
     }
 
+    public float multiplier = 1;
+
     private IEnumerator C_Movement(Vector2 dir)
     {
         while (moving)
@@ -141,7 +145,7 @@ public class PlayerController : MonoBehaviour
             Vector3 movement = Vector3.ClampMagnitude(orientation.transform.forward * appliedDir.y + orientation.transform.right * appliedDir.x, 1);
 
             //Apply forces to move player
-            rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection) * curSpeedAccel);
+            rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection) * curSpeedAccel * multiplier);
 
             if (dir == Vector2.zero && rb.linearVelocity.magnitude == 0) moving = false;
             yield return new WaitForFixedUpdate();
@@ -163,6 +167,8 @@ public class PlayerController : MonoBehaviour
 
         //slows the player down if they arent inputting anything
         if (ungatedDir.magnitude == 0) FrictionForce();
+        //reset wall contact here, as fixed update runs before collision stay
+        contactingWall = false;
     }
 
     private void FrictionForce()
@@ -212,16 +218,18 @@ public class PlayerController : MonoBehaviour
         return angle < maxSlopeAngle;
     }
 
+    public ContactPoint p;
+    public bool contactingWall = false;
 
-/*    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionStay(Collision hit)
     {
-        if (whatIsGround != (whatIsGround | (1 << collision.gameObject.layer))) return;
-        if (IsFloor(collision.GetContact(0).normal))
+        if (!grounded)
         {
-            ContactPoint hit = collision.GetContact(0);
-            hhhh.rotation = Quaternion.FromToRotation(collision.GetContact(0).normal, Vector3.up) * hhhh.rotation;
+            p = hit.GetContact(0);
+            if (p.normal.y < 0.5f) contactingWall = true;
+            Debug.DrawRay(p.point, p.normal, Color.red, 1f);
         }
-    }*/
+    }
 
     IEnumerator C_NegateSlopeSlide()
     {
@@ -241,9 +249,11 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawWireCube(transform.position, closeFloorCheckArea);
     }
 
+    bool floorGround;
     void CheckGrounded()
     {
         floorClose = false;
+        floorGround = false;
         slopeDirection = Vector3.up;
         if (!overrideSlopeDirection)
         {
@@ -251,19 +261,24 @@ public class PlayerController : MonoBehaviour
             {
                 floorClose = true;
 
-                if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, groundedCheckArea.y, whatIsGround))
+                if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit info, groundedCheckArea.y*2, whatIsGround))
                 {
                     if (IsFloor(info.normal))
                     {
                         slopeDirection = info.normal;
+                        floorGround = true;
                     }
                 }
             }
         }
 
+/*        if (floorClose) modelAnim.SetBool("Standing", true);
+        else modelAnim.SetBool("Standing", false);*/
+
+
         oldGrounded = grounded;
-        //if CheckBox found a valid floor
-        if (floorClose)
+        //if raycast found a floor
+        if (floorGround)
         {
             modelAnim.SetBool("Standing", true);
             if (Physics.CheckBox(transform.position, groundedCheckArea, Quaternion.identity, whatIsGround))
@@ -276,6 +291,8 @@ public class PlayerController : MonoBehaviour
                     canJump = true;
                     canDive = true;
                     jumpedFrom = 0;
+                    divesRemaining = 1;
+                    airSwipesRemaining = totalAirSwipes;
                     //counteract the slight slide down that is induced upon landing on a slope
                 }
             }
@@ -293,8 +310,8 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator C_CoyoteTime()
     {
-        modelAnim.SetBool("Standing", false);
         yield return new WaitForSeconds(coyoteTime);
+        modelAnim.SetBool("Standing", false);
         grounded = false;
         ExitGrounded.Invoke();
     }

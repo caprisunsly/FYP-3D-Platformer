@@ -12,6 +12,7 @@ public class PlayerStateManager : MonoBehaviour
     [field: SerializeField] public Base_State stateLedgeHang { get; private set; }
     [field: SerializeField] public Base_State stateAirDive { get; private set; }
     [field: SerializeField] public Base_State stateTailSwipe { get; private set; }
+    [field: SerializeField] public Base_State stateWallBounce { get; private set; }
     Coroutine c_transitionTimer, c_waitForTransition;
 
     PlayerController pc;
@@ -93,8 +94,8 @@ public class PlayerStateManager : MonoBehaviour
         currentState.StateExit();
         currentState = newState;
         currentState.StateEntry(pc, this);
-        Debug.Log(currentState + ": " + (Time.time - t));
-        t = Time.time;
+/*        Debug.Log(currentState + ": " + (Time.time - t));
+*/        t = Time.time;
         c_transitionTimer = StartCoroutine(C_TransitionTimer(currentState.transitionTime));
         c_waitForTransition = null;
     }

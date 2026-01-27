@@ -7,19 +7,15 @@ public class State_TailSwipe : Base_State
 {
     [SerializeField] float swipeTime = .4f;
     [SerializeField] float swipeDelay = .15f; //time before the hitbox comes out
-    [SerializeField] float boxSizeY;
-    [SerializeField] float boxSizeXZ;
     [SerializeField] float minimumHeightFromGround;
     [SerializeField] float minimumWallAngle;
 
 
     Coroutine c_swipe;
-    LedgeCastData ledgeData;
 
     public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
         base.StateEntry(PC, SM);
-        ledgeData = new LedgeCastData(pc, boxSizeY, boxSizeXZ, minimumHeightFromGround);
         c_swipe = CoroutineRunner.Instance.StartCoroutine(C_Swipe());
     }
 
@@ -31,9 +27,13 @@ public class State_TailSwipe : Base_State
 
     IEnumerator C_Swipe()
     {
+        if (!pc.grounded) pc.airSwipesRemaining--;
+
         pc.modelAnim.SetTrigger("TailSwipe");
 
         float time = 0;
+        if (pc.rb.linearVelocity.y < 0 && pc.airSwipesRemaining > 0) pc.rb.linearVelocity = new Vector3(pc.rb.linearVelocity.x, 2, pc.rb.linearVelocity.z);
+
 
         while (time < swipeDelay)
         {
@@ -42,19 +42,16 @@ public class State_TailSwipe : Base_State
         }
 
         time = 0;
-        Debug.Log("start");
         //enable box collider for dealing damage. i could tie the collider to the tail, but due to the lack of blending in animations it would be a very inconsistent hitbox.
         while (time < swipeTime)
         {
-            //anything that needs to be done during the swipe goes here.
-            //check box around player
-            RaycastHit hit = LedgeCast.CheckBox(ledgeData, pc.ungatedDir, minimumWallAngle);
-            if (hit.rigidbody != null)
+            if (pc.contactingWall)
             {
-                Debug.Log("found");
-                //if wall -> enter bounce
-                Vector3 direction = Vector3.Reflect(pc.transform.position - hit.point, hit.normal);
-                Debug.DrawLine(direction, direction * 2, Color.red, 5);
+                if (pc.airSwipesRemaining >= 0)
+                {
+                    Debug.Log("enterbounce");
+                    sm.ChangeState(sm.stateWallBounce);
+                }
             }
             time += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
@@ -65,5 +62,12 @@ public class State_TailSwipe : Base_State
         //check what state the player should enter, standing or falling
         if (pc.grounded) sm.ChangeState(sm.stateStanding);
         else sm.ChangeState(sm.stateFalling);
+    }
+
+    public override void DiveStart()
+    {
+        if (pc.canDive == false) return;
+        pc.canDive = false;
+        sm.ChangeState(sm.stateAirDive);
     }
 }

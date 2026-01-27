@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "PlayerState/AirDive")]
+[CreateAssetMenu(menuName = "PlayerState/WallBounce")]
 public class State_TailWallBounce : Base_State
 {
     [Header("Dive")]
@@ -16,12 +16,14 @@ public class State_TailWallBounce : Base_State
     [SerializeField] float ledgeSnapDistance;
     [SerializeField] float minimumHeightFromGround;
     LedgeCastData ledgeData;
+    Vector3 direction;
 
 
     public override void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
         base.StateEntry(PC, SM);
         c_swipe = CoroutineRunner.Instance.StartCoroutine(C_Diving());
+        direction = Vector3.Reflect(pc.p.point - pc.transform.position, pc.p.normal).normalized;
     }
 
     public override void StateExit()
@@ -33,19 +35,18 @@ public class State_TailWallBounce : Base_State
     IEnumerator C_Diving()
     {
         float time = 0;
+        pc.rb.linearVelocity = new Vector3(pc.rb.linearVelocity.x, 0, pc.rb.linearVelocity.z);
 
-        while (time < diveDelay) //gives the player a moment to react to the dive input
-        {
-            time += Time.fixedDeltaTime;
-            yield return new WaitForFixedUpdate();
-        }
+        pc.modelAnim.SetTrigger("Bounce");
 
-        time = 0;
+        pc.rb.AddForce(direction * diveForceH + Vector3.up * diveForceV, ForceMode.Impulse);
+        pc.canDive = true;
+        pc.divesRemaining = 1;
 
-        pc.modelAnim.SetTrigger("Dive");
         while (time < diveTime)
         {
-
+            time += Time.deltaTime;
+            yield return null;
         }
         sm.ChangeState(sm.stateFalling);
     }

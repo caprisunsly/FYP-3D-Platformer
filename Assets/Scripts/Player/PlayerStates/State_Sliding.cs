@@ -48,13 +48,15 @@ public class State_Sliding : Base_State
     IEnumerator C_Sliding()
     {
         float time = 0;
+        float slopeAngle = 90;
         pc.modelAnim.SetTrigger("Slide");
         pc.modelAnim.SetBool("Sliding", true);
         if (dir == Vector2.zero) dir = new Vector2(pc.rb.linearVelocity.x, pc.rb.linearVelocity.z).normalized; //prevents super slow slides when the player slides as they release movement keys
         while (time < slideTime || !canExit)
         {
-            float slopeAngle = Vector3.Angle(pc.slopeDirection, new Vector3(pc.rb.linearVelocity.x, 0, pc.rb.linearVelocity.z));
+            slopeAngle = Vector3.Angle(pc.slopeDirection, new Vector3(pc.rb.linearVelocity.x, 0, pc.rb.linearVelocity.z));
             if (slopeAngle > 90) slopeAngle += slopeAngle * .3f; //makes upward slopes more punishing and slower
+            Debug.Log(slopeAngle);
 
             float appliedMax = slideMaxSpeed * (1 + (90 - slopeAngle) / 45 * slopeAngleMultiplier); //increase max speed if on a downward slope
             
@@ -71,6 +73,7 @@ public class State_Sliding : Base_State
                 pc.rb.AddForce(Vector3.ProjectOnPlane(movement, pc.slopeDirection).normalized * slideAccel);
             }
             time += Time.fixedDeltaTime;
+            if (slopeAngle < 85 && time >= slideTime) time = slideTime - 0.1f;
             yield return new WaitForFixedUpdate();
         }
         sm.ChangeState(sm.stateStanding);

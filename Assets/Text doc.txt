@@ -1,0 +1,19 @@
+an open field with a castle in the centre
+a dam which splits the level in two
+a cave with lots of dangerous pits
+
+
+
+objectives:
+collect/destroy x number of things hidden in the level
+
+
+
+open field with castle level:
+reach the main chamber of the castle
+get onto the top of the roof of the castle
+get into the basement and defeat the boss kept there
+herd all the sheep back into the barn
+destroy all of the (things that are being evil >:3) around the map
+harvest all the crops for the farmer
+collect 100 coins in the level

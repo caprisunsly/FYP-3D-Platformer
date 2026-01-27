@@ -18,7 +18,7 @@ MonoBehaviour:
   <speedDecel>k__BackingField: -1
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
-  diveForceH: 175
+  diveForceH: 125
   diveForceV: 100
   diveTime: 0.4
   diveDelay: 0.03

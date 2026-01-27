@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: State_Falling
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
-  <speedMax>k__BackingField: 14
+  <speedMax>k__BackingField: 12
   <speedAccel>k__BackingField: 300
   <speedDecel>k__BackingField: 20
   <gravityMult>k__BackingField: 1
