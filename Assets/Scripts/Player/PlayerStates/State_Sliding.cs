@@ -104,4 +104,9 @@ public class State_Sliding : Base_State
     {
         sm.ChangeState(sm.stateFalling);
     }
+
+    public override void TailSwipeStart()
+    {
+        sm.ChangeState(sm.stateTailSwipe);
+    }
 }

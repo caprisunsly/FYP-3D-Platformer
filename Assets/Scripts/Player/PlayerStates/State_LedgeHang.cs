@@ -21,8 +21,8 @@ public class State_LedgeHang : Base_State
         pc.modelAnim.SetBool("LedgeHang", true);
         Vector3 heldDir = pc.orientation.transform.forward * pc.ungatedDir.y + pc.orientation.transform.right * pc.ungatedDir.x;
         //find the top of the ledge with a raycast sweep, using the collision point plus an offset to position the player at the top of the ledge
-        Physics.Raycast(pc.ledgeDetection.position, heldDir, out RaycastHit hitXZ, ledgeSnapDistance, pc.whatIsGround); 
-        Physics.Raycast(pc.ledgeDetection.position + new Vector3(0, ledgeHeight, 0) + heldDir * ledgeSnapDistance, Vector3.down * ledgeHeight, out RaycastHit hitY, ledgeSnapDistance, pc.whatIsGround);
+        Physics.Raycast(pc.ledgeDetection.position, heldDir, out RaycastHit hitXZ, ledgeSnapDistance, pc.whatIsWall); 
+        Physics.Raycast(pc.ledgeDetection.position + new Vector3(0, ledgeHeight, 0) + heldDir * ledgeSnapDistance, Vector3.down * ledgeHeight, out RaycastHit hitY, ledgeSnapDistance, pc.whatIsWall);
 
          if (hitXZ.collider == null || hitY.collider == null)
          {

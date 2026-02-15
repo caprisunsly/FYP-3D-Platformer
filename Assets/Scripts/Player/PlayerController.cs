@@ -1,6 +1,9 @@
+using DG.Tweening;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -9,6 +12,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Transform playerModel { get; private set; }
     [field: SerializeField] public Animator modelAnim { get; private set; }
     [field: SerializeField] public Transform ledgeDetection { get; private set; }
+    PlayerInputHandler inputHandler;
 
     public CapsuleCollider cl { get; private set; }
     public Rigidbody rb { get; private set; }
@@ -28,7 +32,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Vector3 groundedCheckArea;
     [SerializeField] Vector3 closeFloorCheckArea;
     [field: SerializeField] public LayerMask whatIsGround { get; private set; }
+    [field: SerializeField] public LayerMask whatIsWall { get; private set; }
     [field: SerializeField] public bool canJump { get; set; }
+    [field: SerializeField] public bool canDoubleJump { get; set; }
     [field: SerializeField] public bool canDive { get; set; }
 
     [SerializeField] float maxSlopeAngle = 35f;
@@ -52,7 +58,7 @@ public class PlayerController : MonoBehaviour
 
 
     public bool floorClose { get; private set; }
-    Coroutine c_coyote, c_movement;
+    Coroutine c_coyote;
 
     public static event Action EnterGrounded;
     public static event Action ExitGrounded;
@@ -61,16 +67,30 @@ public class PlayerController : MonoBehaviour
 
     public float jumpedFrom { get; set; }//store where the player jumped from
 
+    [SerializeField] TMP_Text keyNameText;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         cl = GetComponent<CapsuleCollider>();
     }
 
+    private void OnEnable()
+    {
+        Key.OnCollected += CollectKey;
+    }
+    private void OnDisable()
+    {
+        Key.OnCollected -= CollectKey;
+    }
+
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        StartCoroutine(C_Movement());
+        inputHandler = GetComponent<PlayerInputHandler>();
     }
 
     private void Update()
@@ -81,6 +101,25 @@ public class PlayerController : MonoBehaviour
     private void LateUpdate()
     {
         CheckGrounded();
+    }
+
+    void CollectKey(string keyName)
+    {
+        StartCoroutine(KeyAnim(keyName));
+    }
+
+    IEnumerator KeyAnim(string keyName)
+    {
+        keyNameText.text = keyName;
+        modelAnim.SetBool("KeyCollect", true);
+        inputHandler.InputDisable();
+        doRotate = 0;
+        playerModel.transform.DORotateQuaternion(Quaternion.LookRotation(Vector3.ProjectOnPlane(playerCam.position - transform.position, slopeDirection)), 0.4f);
+        //rotate player to face where cam orientation is
+        yield return new WaitForSeconds(2.6f);
+        doRotate = 1;
+        modelAnim.SetBool("KeyCollect", false);
+        inputHandler.InputEnable();
     }
 
     public void SetSpeed(float max, float accel, float decel, float gravity, int rotationMult)
@@ -109,13 +148,13 @@ public class PlayerController : MonoBehaviour
 
     public void Movement(Vector2 gatedDir, Vector2 ungatedDir)
     {
-        if (c_movement != null)
+/*        if (c_movement != null)
         {
             StopCoroutine(c_movement);
             c_movement = null;
         }
         moving = true;
-        c_movement = StartCoroutine(C_Movement(gatedDir));
+        c_movement = StartCoroutine(C_Movement(gatedDir));*/
         this.gatedDir = gatedDir;
         this.ungatedDir = ungatedDir;
         modelAnim.SetInteger("InputXZ", Mathf.RoundToInt(this.ungatedDir.magnitude));
@@ -123,7 +162,7 @@ public class PlayerController : MonoBehaviour
 
     public float multiplier = 1;
 
-    private IEnumerator C_Movement(Vector2 dir)
+    private IEnumerator C_Movement()
     {
         while (moving)
         {
@@ -134,12 +173,12 @@ public class PlayerController : MonoBehaviour
             /*            CounterMovement(dir.x, dir.y, mag);
             */
             //If speed is larger than maxspeed, cancel out the input so player doesn't go over max speed
-            Vector2 appliedDir = dir;
+            Vector2 appliedDir = ungatedDir;
 
-            if (dir.x > 0 && mag.x > curSpeedMax) appliedDir.x = 0;
-            if (dir.x < 0 && mag.x < -curSpeedMax) appliedDir.x = 0;
-            if (dir.y > 0 && mag.y > curSpeedMax) appliedDir.y = 0;
-            if (dir.y < 0 && mag.y < -curSpeedMax) appliedDir.y = 0;
+            if (ungatedDir.x > 0 && mag.x > curSpeedMax) appliedDir.x = 0;
+            if (ungatedDir.x < 0 && mag.x < -curSpeedMax) appliedDir.x = 0;
+            if (ungatedDir.y > 0 && mag.y > curSpeedMax) appliedDir.y = 0;
+            if (ungatedDir.y < 0 && mag.y < -curSpeedMax) appliedDir.y = 0;
 
             //Apply forces to move player
             Vector3 movement = Vector3.ClampMagnitude(orientation.transform.forward * appliedDir.y + orientation.transform.right * appliedDir.x, 1);
@@ -147,11 +186,11 @@ public class PlayerController : MonoBehaviour
             //Apply forces to move player
             rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection) * curSpeedAccel * multiplier);
 
-            if (dir == Vector2.zero && rb.linearVelocity.magnitude == 0) moving = false;
-            yield return new WaitForFixedUpdate();
+/*            if (dir == Vector2.zero && rb.linearVelocity.magnitude == 0) moving = false;
+*/            yield return new WaitForFixedUpdate();
         }
-        c_movement = null;
-    }
+/*        c_movement = null;
+*/    }
     private void FixedUpdate()
     {
         rb.AddForce(gravity * gravityMult * -slopeDirection); //gravity force
@@ -225,6 +264,8 @@ public class PlayerController : MonoBehaviour
     {
         if (!grounded)
         {
+            if ((whatIsWall & (1 << hit.gameObject.layer)) == 0) return;
+
             p = hit.GetContact(0);
             if (p.normal.y < 0.5f) contactingWall = true;
             Debug.DrawRay(p.point, p.normal, Color.red, 1f);
@@ -287,8 +328,9 @@ public class PlayerController : MonoBehaviour
                 if (oldGrounded != grounded)
                 {
                     jumpsRemaining = totalJumps;
-                    EnterGrounded.Invoke();
+                    EnterGrounded?.Invoke();
                     canJump = true;
+                    canDoubleJump = true;
                     canDive = true;
                     jumpedFrom = 0;
                     divesRemaining = 1;

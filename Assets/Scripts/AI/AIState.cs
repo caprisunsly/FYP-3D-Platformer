@@ -6,6 +6,8 @@ public abstract class AIState : MonoBehaviour
     public bool active = true;
     [field: SerializeField] public float delay { get; private set; } = 0;
     protected AIStateManager manager { get; private set; }
+    [SerializeField] float speed = 5;
+    [SerializeField] float acceleration = 1000;
 
     private void Awake()
     {
@@ -13,7 +15,12 @@ public abstract class AIState : MonoBehaviour
     }
 
     public abstract bool CalculateTarget(out Vector3 target);
-    public abstract void StateFixedUpdate();
+    public virtual void StateEnter()
+    {
+        manager.agent.speed = speed;
+        manager.agent.acceleration = acceleration;
+    }
+    public abstract void StateUpdate();
 
     public void SetManager(AIStateManager m)
     {

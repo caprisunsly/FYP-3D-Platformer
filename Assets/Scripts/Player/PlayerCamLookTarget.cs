@@ -13,7 +13,35 @@ public class PlayerCamLookTarget : MonoBehaviour
     [SerializeField] float timeToRecenter;
     float mult;
     [SerializeField] CinemachineOrbitalFollow CMFollow;
+    CinemachineInputAxisController IAController;
     Coroutine c_centerCam;
+
+    private void Start()
+    {
+        IAController = CMFollow.GetComponent<CinemachineInputAxisController>();
+    }
+
+    private void OnEnable()
+    {
+        CutsceneManager.OnCutsceneStarted += DisableCamLook;
+        CutsceneManager.OnCutsceneEnded += EnableCamLook;
+    }
+
+    private void OnDisable()
+    {
+        CutsceneManager.OnCutsceneStarted -= DisableCamLook;
+        CutsceneManager.OnCutsceneEnded -= EnableCamLook;
+    }
+
+    void EnableCamLook()
+    {
+        IAController.enabled = true;
+    }
+
+    void DisableCamLook()
+    {
+        IAController.enabled = false;
+    }
 
     void Update()
     {

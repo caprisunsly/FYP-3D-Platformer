@@ -25,8 +25,12 @@ public class State_AirDive : Base_State
         ledgeData = new LedgeCastData(pc, ledgeHeight, ledgeSnapDistance, minimumHeightFromGround);
         c_diving = CoroutineRunner.Instance.StartCoroutine(C_Diving());
         pc.divesRemaining--;
-        pc.jumpsRemaining = 1;
-        pc.canJump = true;
+        if (pc.canDoubleJump)
+        {
+            pc.jumpsRemaining = 1;
+            pc.canJump = true;
+            pc.canDoubleJump = false;
+        }
         jumpAttempted = false;
         swipeAttempted = false;
     }
@@ -130,7 +134,7 @@ public struct LedgeCastData
     {
         orientation = pc.orientation;
         ledgeDetection = pc.ledgeDetection;
-        whatIsGround = pc.whatIsGround;
+        whatIsGround = pc.whatIsWall;
         startHeight = pc.jumpedFrom;
         height = Height;
         distance = Distance;

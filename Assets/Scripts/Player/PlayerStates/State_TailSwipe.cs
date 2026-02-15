@@ -32,7 +32,7 @@ public class State_TailSwipe : Base_State
         pc.modelAnim.SetTrigger("TailSwipe");
 
         float time = 0;
-        if (pc.rb.linearVelocity.y < 0 && pc.airSwipesRemaining > 0) pc.rb.linearVelocity = new Vector3(pc.rb.linearVelocity.x, 2, pc.rb.linearVelocity.z);
+        if (pc.rb.linearVelocity.y < 0) pc.rb.linearVelocity = new Vector3(pc.rb.linearVelocity.x, 0, pc.rb.linearVelocity.z);
 
 
         while (time < swipeDelay)

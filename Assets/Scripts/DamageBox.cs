@@ -7,6 +7,7 @@ public class DamageBox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.isTrigger) return;
         other.TryGetComponent(out IDamageable target);
         if (target != null) target.Damage(damage, parent);
     }

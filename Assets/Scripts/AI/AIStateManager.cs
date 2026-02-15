@@ -11,7 +11,7 @@ public class AIStateManager : MonoBehaviour
     public NavMeshAgent agent { get; private set; }
     AIState[] states;
     AIState currentState;
-    bool pathing;
+    public bool pathing { get; private set; }
 /*    public event EventHandler<StateChangeArgs> OnStateChanged;
 */    private void Awake()
     {
@@ -27,25 +27,28 @@ public class AIStateManager : MonoBehaviour
         if (currentState.CalculateTarget(out Vector3 target))
         {
             yield return new WaitForSeconds(currentState.delay);
+            if (!agent.enabled)
+            {
+                pathing = false;
+                yield break;
+            }
             agent.SetDestination(target);
             Debug.DrawRay(target, Vector3.up, Color.blue, 1f);
+            agent.isStopped = false;
         }
         pathing = false;
     }
 
-    void ChangeState(AIState newState)
+    public void ChangeState(AIState newState)
     {
         currentState = newState;
+        currentState.StateEnter();
         StartCoroutine(CalculateTarget());
-/*        OnStateChanged(this, new StateChangeArgs(currentState));
-*/    }
+    }
 
     private void Update()
     {
-        if (agent.remainingDistance <= agent.stoppingDistance && !pathing)
-        {
-            StartCoroutine(CalculateTarget());
-        }
+        currentState.StateUpdate();
     }
 }
 

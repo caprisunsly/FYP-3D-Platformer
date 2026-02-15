@@ -6,6 +6,7 @@ TagManager:
   tags:
   - LevelHazard
   - Chicken
+  - enemy
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - Tail & Ear Physics
   - IgnoreCam
   - NotNavigable
-  - 
+  - No Wall Jump
   - 
   - 
   - 
