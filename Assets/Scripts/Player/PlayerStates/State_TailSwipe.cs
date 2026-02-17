@@ -1,5 +1,4 @@
 using System.Collections;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "PlayerState/TailSwipe")]
@@ -9,6 +8,8 @@ public class State_TailSwipe : Base_State
     [SerializeField] float swipeDelay = .15f; //time before the hitbox comes out
     [SerializeField] float minimumHeightFromGround;
     [SerializeField] float minimumWallAngle;
+
+    [SerializeField] float colliderRadius;
 
 
     Coroutine c_swipe;
@@ -23,11 +24,14 @@ public class State_TailSwipe : Base_State
     {
         base.StateExit();
         if (c_swipe != null) CoroutineRunner.Instance.StopCoroutine(c_swipe);
+        pc.ResetColliderRadius();
     }
 
     IEnumerator C_Swipe()
     {
         if (!pc.grounded) pc.airSwipesRemaining--;
+
+        pc.SetColliderRadius(colliderRadius);
 
         pc.modelAnim.SetTrigger("TailSwipe");
 
@@ -64,7 +68,7 @@ public class State_TailSwipe : Base_State
         else sm.ChangeState(sm.stateFalling);
     }
 
-    public override void DiveStart()
+    public override void JumpStart()
     {
         if (pc.canDive == false) return;
         pc.canDive = false;

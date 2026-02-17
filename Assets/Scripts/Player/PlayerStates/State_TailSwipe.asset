@@ -22,3 +22,4 @@ MonoBehaviour:
   swipeDelay: 0.05
   minimumHeightFromGround: 0
   minimumWallAngle: 40
+  colliderRadius: 0.8

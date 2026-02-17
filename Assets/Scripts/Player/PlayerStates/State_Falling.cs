@@ -50,6 +50,12 @@ public class State_Falling : Base_State
             sm.ChangeState(sm.stateJumping);
             return;
         }
+        if (pc.canDive)
+        {
+            pc.canDive = false;
+            sm.ChangeState(sm.stateAirDive);
+            return;
+        }
         if (c_jumpBuffer != null)
         {
             CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);

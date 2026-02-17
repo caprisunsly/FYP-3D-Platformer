@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Room Entry
   m_EditorClassIdentifier: 
   speakerName: King Gug
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a090ebd2b0085d74dad8d4691898e84e, type: 3}
   dialogue:
   - HALT!!!

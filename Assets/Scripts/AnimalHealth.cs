@@ -28,7 +28,7 @@ public class AnimalHealth : MonoBehaviour, IDamageable
         if (Vector3.Angle(Vector3.up, collision.contacts[0].normal) < 35) grounded = true;
     }
 
-    public void Damage(int damage, Transform instigator)
+    public void Damage(int damage, Transform instigator, IDamageable.DamageTypes damageType)
     {
         agent.enabled = false;
         rb.constraints = RigidbodyConstraints.None;

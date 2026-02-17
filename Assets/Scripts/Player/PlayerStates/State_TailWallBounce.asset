@@ -18,10 +18,12 @@ MonoBehaviour:
   <speedDecel>k__BackingField: 1
   <gravityMult>k__BackingField: 0.5
   <shouldRotate>k__BackingField: 1
-  diveForceH: 125
-  diveForceV: 5
+  <upgradeType>k__BackingField: 1
+  diveForceH: 10
+  diveForceV: 12
   diveTime: 0.2
   diveDelay: 0.1
   ledgeHeight: 0
   ledgeSnapDistance: 0
   minimumHeightFromGround: 0
+  PS_Sparks: {fileID: 2771355751062259907, guid: 90de5d515cc61c24a804f4b06904e550, type: 3}

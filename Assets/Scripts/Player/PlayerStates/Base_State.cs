@@ -12,6 +12,8 @@ public abstract class Base_State : ScriptableObject
     [field: SerializeField] public float gravityMult { get; protected set; } = 1;
     [field: SerializeField] public bool shouldRotate { get; protected set; } = true;
 
+    [field: SerializeField] public UpgradeType upgradeType { get; protected set; }
+
     public virtual void StateEntry(PlayerController PC, PlayerStateManager SM)
     {
         pc = PC; sm = SM;

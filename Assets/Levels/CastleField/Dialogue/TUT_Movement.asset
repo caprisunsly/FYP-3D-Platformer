@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: TUT_Movement
   m_EditorClassIdentifier: 
   speakerName: Sign
+  icon: {fileID: 21300000, guid: 6dd762f0a8239ad41b7e72c38bcc2312, type: 3}
   dialogue:
   - Use the left stick to move, and the right stick to turn the camera.

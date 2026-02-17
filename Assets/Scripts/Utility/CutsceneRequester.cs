@@ -1,4 +1,3 @@
-using Unity.Cinemachine;
 using UnityEngine;
 
 public class CutsceneRequester : MonoBehaviour
@@ -15,7 +14,12 @@ public class CutsceneRequester : MonoBehaviour
 
     public void PlayDialogue()
     {
+        if (doOnce) data.postSceneEvent.AddListener(Disable);
         CutsceneManager.instance.PlayCutscene(data);
-        if (doOnce) gameObject.SetActive(false);
+    }
+
+    void Disable()
+    {
+        this.enabled = false;
     }
 }

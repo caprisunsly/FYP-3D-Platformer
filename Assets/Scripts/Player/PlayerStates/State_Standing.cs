@@ -3,6 +3,12 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "PlayerState/Standing")]
 public class State_Standing : Base_State
 {
+    public override void StateEntry(PlayerController PC, PlayerStateManager SM)
+    {
+        base.StateEntry(PC, SM);
+        pc.modelAnim.SetBool("Hurt", false);
+    }
+
     public override void JumpStart()
     {
         sm.ChangeState(sm.stateJumping);

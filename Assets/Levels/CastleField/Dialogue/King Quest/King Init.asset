@@ -13,7 +13,12 @@ MonoBehaviour:
   m_Name: King Init
   m_EditorClassIdentifier: 
   speakerName: King Gug
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a090ebd2b0085d74dad8d4691898e84e, type: 3}
   dialogue:
-  - take this key and go to the basement innit.
-  - btw u need 2 and i lost one rofl go find it
+  - You seem like a capable fighter my friend. How would you like to help out your
+    king?
+  - If you clear all of the slimes out of the dungeon for me, you can keep whatever
+    you find down there.
+  - Here, take this key. You'll need a second one to open the door though. No idea
+    where I left it.
+  - The door is just to your right.

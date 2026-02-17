@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,7 +15,6 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] float gateAngle;
     [SerializeField] CinemachineInputAxisController axisController;
     bool canInput = true;
-
     public static event Action AdvanceDialogue;
     public static event Action<string> ChangeControlScheme;
 
@@ -69,6 +69,11 @@ public class PlayerInputHandler : MonoBehaviour
     {
         axisController.Controllers[0].Input.Gain = gain;
         axisController.Controllers[1].Input.Gain = -gain;
+    }
+
+    public void OnPauseButton(CallbackContext context)
+    {
+        if (context.started) CutsceneManager.instance.PauseGame();
     }
 
     public void OnMove(CallbackContext context)
@@ -129,12 +134,12 @@ public class PlayerInputHandler : MonoBehaviour
             pc.crouchHeld = false;
         }
     }
-
+/*
     public void OnAirDive(CallbackContext context)
     {
         if (!canInput) return;
         if (context.started) stateManager.currentState.DiveStart();
-    }
+    }*/
 
     public void OnTailSwipe(CallbackContext context)
     {

@@ -7,7 +7,7 @@ public class LevelHazard : MonoBehaviour
         collision.gameObject.TryGetComponent(out IDamageable d);
         if (d != null)
         {
-            d.Damage(1, transform);
+            d.Damage(1, transform, IDamageable.DamageTypes.LevelHazard);
         }
     }
 }

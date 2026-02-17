@@ -16,5 +16,7 @@ public class PointsPopupAnimation : MonoBehaviour
         transform.DOMoveY(transform.position.y + 5, 1.2f);
         yield return new WaitForSeconds(.9f);
         transform.DOScale(0, 0.3f);
+        yield return new WaitForSeconds(.3f);
+        Destroy(gameObject);
     }
 }

@@ -7,6 +7,9 @@ public class Enemy_Slime : MonoBehaviour
     AIS_Chase chaseState;
     AIS_Wander wanderState;
     [SerializeField] Animator anim;
+
+    [SerializeField] int damage = 1;
+
     private void Start()
     {
         stateManager = GetComponent<AIStateManager>();
@@ -38,7 +41,7 @@ public class Enemy_Slime : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             collision.gameObject.TryGetComponent(out IDamageable target);
-/*            if (target != null) target.Damage(damage, parent);
-*/        }
+            if (target != null) target.Damage(damage, transform);
+        }
     }
 }

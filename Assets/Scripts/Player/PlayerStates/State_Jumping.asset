@@ -18,6 +18,7 @@ MonoBehaviour:
   <speedDecel>k__BackingField: 0
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
+  <upgradeType>k__BackingField: 0
   jumpForce: 180
   jumpCancelForce: 100
   jumpBufferTime: 0.2

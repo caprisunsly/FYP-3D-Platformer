@@ -5,7 +5,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     [SerializeField] int maxHealth;
     int currentHealth;
 
-    public void Damage(int damage, Transform instigator)
+    public void Damage(int damage, Transform instigator, IDamageable.DamageTypes damageType)
     {
         currentHealth -= damage;
         if (currentHealth <= 0) Death();

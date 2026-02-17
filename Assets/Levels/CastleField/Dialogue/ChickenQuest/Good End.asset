@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e57d9630846dc140b0ff4bc272b4fe2, type: 3}
   m_Name: Good End
   m_EditorClassIdentifier: 
-  speakerName: Definitely not a chicken
+  speakerName: '"Farmer"'
+  icon: {fileID: 21300000, guid: 4a1e49120abb39c4889fcec21dff56bb, type: 3}
   dialogue:
   - Thanks so much! Take this random key I found as my thanks.

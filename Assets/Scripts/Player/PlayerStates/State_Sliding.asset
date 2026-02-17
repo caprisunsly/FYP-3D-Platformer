@@ -18,6 +18,7 @@ MonoBehaviour:
   <speedDecel>k__BackingField: -1
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
+  <upgradeType>k__BackingField: 2
   slideAccel: 1500
   slideMaxSpeed: 17
   slideTime: 0.7

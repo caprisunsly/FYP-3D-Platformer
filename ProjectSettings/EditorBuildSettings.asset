@@ -6,8 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SC_Testing Scene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Levels/Main Menu.unity
+    guid: 01a5b3bbcda830d4ba05226e9015f6d1
+  - enabled: 1
+    path: Assets/Levels/CastleField/SC_CastleField.unity
+    guid: 9c17c679b30656d4f8911f78413afbbe
+  - enabled: 1
+    path: Assets/Levels/Dungeon/SC_Dungeon.unity
+    guid: 33476b0016ed8224a9797fd519bf6809
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStateManager : MonoBehaviour
@@ -13,7 +14,11 @@ public class PlayerStateManager : MonoBehaviour
     [field: SerializeField] public Base_State stateAirDive { get; private set; }
     [field: SerializeField] public Base_State stateTailSwipe { get; private set; }
     [field: SerializeField] public Base_State stateWallBounce { get; private set; }
+    [field: SerializeField] public Base_State stateDamaged { get; private set; }
     Coroutine c_transitionTimer, c_waitForTransition;
+
+    public Dictionary<UpgradeType, bool> collectedUpgrades;
+
 
     PlayerController pc;
 
@@ -21,12 +26,14 @@ public class PlayerStateManager : MonoBehaviour
     {
         PlayerController.EnterGrounded += EnterGround;
         PlayerController.ExitGrounded += ExitGround;
+        CutsceneManager.UpgradeUpdate += EvaluateUpgrades;
     }
 
     private void OnDisable()
     {
         PlayerController.EnterGrounded -= EnterGround;
         PlayerController.ExitGrounded -= ExitGround;
+        CutsceneManager.UpgradeUpdate -= EvaluateUpgrades;
     }
 
     private void Start()
@@ -37,6 +44,12 @@ public class PlayerStateManager : MonoBehaviour
         pc = GetComponent<PlayerController>();
         currentState = stateStanding;
         currentState.StateEntry(pc, this);
+        EvaluateUpgrades();
+    }
+
+    void EvaluateUpgrades()
+    {
+        collectedUpgrades = CutsceneManager.instance.collectedUpgrades;
     }
 
     private void Update()
@@ -61,6 +74,13 @@ public class PlayerStateManager : MonoBehaviour
 
     public void ChangeState(Base_State newState)
     {
+        if (newState.upgradeType != UpgradeType.None)
+        {
+            //check if player has the upgrade to enter any state that requires an upgrade. uses a dictionary so vv fast :)
+            if (!collectedUpgrades[newState.upgradeType]) return;
+        }
+
+
         if (c_waitForTransition != null)
         {
             StopCoroutine(c_waitForTransition);

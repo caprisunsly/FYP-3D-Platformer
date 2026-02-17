@@ -39,6 +39,12 @@ public class State_Jumping : Base_State
 
     public override void JumpStart()
     {
+        if (pc.canDive)
+        {
+            pc.canDive = false;
+            sm.ChangeState(sm.stateAirDive);
+            return;
+        }
         if (c_jumpBuffer != null)
         {
             CoroutineRunner.Instance.StopCoroutine(c_jumpBuffer);

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: TUT_Interaction
   m_EditorClassIdentifier: 
   speakerName: Sign
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 6dd762f0a8239ad41b7e72c38bcc2312, type: 3}
   dialogue:
   - You can press Y to interact with signs like me! Try it out!

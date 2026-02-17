@@ -1,19 +1,22 @@
 using DG.Tweening;
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Key : Pickup
 {
-    [SerializeField] string keyName;
-    public static event Action<string> OnCollected;
+    public static event Action OnCollected;
 
-    public override void CollectEvent()
+    void Awake()
     {
-        OnCollected(keyName);
+        Vector3 scale = transform.localScale;
+        transform.localScale = Vector3.zero;
+        transform.DOScale(scale, 2);
     }
 
-    public override void CollectComplete()
+    public override void CollectEvent(GameObject player = null)
     {
-        Destroy(transform.parent.gameObject);
+        OnCollected?.Invoke();
+        base.CollectEvent(player);
     }
 }

@@ -1,11 +1,13 @@
+using System;
 using UnityEngine;
 
 public class RespawnPoint : MonoBehaviour
 {
     [SerializeField] Transform respawn;
+    public static event Action<Transform> RespawnSet;
+
     private void OnTriggerEnter(Collider other)
     {
-        other.TryGetComponent(out PlayerHealth pHealth);
-        if (pHealth != null) pHealth.SetRespawn(respawn);
+        if (other.CompareTag("Player")) RespawnSet?.Invoke(respawn);
     }
 }

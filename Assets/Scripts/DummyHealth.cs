@@ -6,7 +6,7 @@ public class DummyHealth : MonoBehaviour, IDamageable
     int currentHealth;
     [SerializeField] Animator anim;
 
-    public void Damage(int damage, Transform instigator)
+    public void Damage(int damage, Transform instigator, IDamageable.DamageTypes damageType)
     {
         currentHealth -= damage;
         if (currentHealth <= 0) Death();

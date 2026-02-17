@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Begin
   m_EditorClassIdentifier: 
   speakerName: Concerned Pet Owner
+  icon: {fileID: 21300000, guid: 6e03363879056cc4c83cd2a3a8c04f4a, type: 3}
   dialogue:
   - Please help!! My poor baby is stuck in that tree!
   - I don't even know how he got up there, but get him down please!

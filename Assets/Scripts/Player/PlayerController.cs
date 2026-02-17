@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using TMPro;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering.UI;
 
@@ -12,6 +13,8 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Transform playerModel { get; private set; }
     [field: SerializeField] public Animator modelAnim { get; private set; }
     [field: SerializeField] public Transform ledgeDetection { get; private set; }
+    float defaultColliderRadius;
+
     PlayerInputHandler inputHandler;
 
     public CapsuleCollider cl { get; private set; }
@@ -66,29 +69,34 @@ public class PlayerController : MonoBehaviour
     public bool crouchHeld, jumpHeld, moving;
 
     public float jumpedFrom { get; set; }//store where the player jumped from
+    public Vector3 knockbackDir { get; set; }//store the direction the player should be knocked back when hit.
 
-    [SerializeField] TMP_Text keyNameText;
+    [SerializeField] TMP_Text bigText;
+    [SerializeField] TMP_Text smallText;
+    [SerializeField] MeshFilter meshF;
+    [SerializeField] MeshRenderer meshR;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         cl = GetComponent<CapsuleCollider>();
+        defaultColliderRadius = cl.radius;
     }
 
     private void OnEnable()
     {
-        Key.OnCollected += CollectKey;
+        Pickup.PlayCollectAnim += CollectSpecial;
     }
     private void OnDisable()
     {
-        Key.OnCollected -= CollectKey;
+        Pickup.PlayCollectAnim -= CollectSpecial;
     }
 
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+/*        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;*/
         StartCoroutine(C_Movement());
         inputHandler = GetComponent<PlayerInputHandler>();
     }
@@ -103,24 +111,47 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
     }
 
-    void CollectKey(string keyName)
+    void CollectSpecial(string name, string description, Mesh model, Material mat)
     {
-        StartCoroutine(KeyAnim(keyName));
+        StartCoroutine(CollectAnim(name, description, model, mat));
     }
 
-    IEnumerator KeyAnim(string keyName)
+    IEnumerator CollectAnim(string name, string description, Mesh model, Material mat)
     {
-        keyNameText.text = keyName;
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+        smallText.text = name;
+        bigText.text = description;
+        meshF.mesh = model;
+        meshR.material = mat;
         modelAnim.SetBool("KeyCollect", true);
         inputHandler.InputDisable();
         doRotate = 0;
         playerModel.transform.DORotateQuaternion(Quaternion.LookRotation(Vector3.ProjectOnPlane(playerCam.position - transform.position, slopeDirection)), 0.4f);
-        //rotate player to face where cam orientation is
         yield return new WaitForSeconds(2.6f);
         doRotate = 1;
         modelAnim.SetBool("KeyCollect", false);
         inputHandler.InputEnable();
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
+
+    public void MoveCutscene(Vector3 moveDirection)
+    {
+        StartCoroutine(C_MoveCutscene(moveDirection));
+    }
+
+    IEnumerator C_MoveCutscene(Vector3 direction)
+    {
+        yield return new WaitForFixedUpdate();
+        CutsceneManager.instance.CustomCutscene(true);
+        Movement(new Vector2(direction.x, direction.z), new Vector2(direction.x, direction.z));
+        FindFirstObjectByType<CinemachineBrain>().ActiveBlend = null;
+        yield return new WaitForSeconds(1f);
+        Movement(Vector2.zero, Vector2.zero);
+        CutsceneManager.instance.CustomCutscene(false);
+    }
+
+    public void SetColliderRadius(float radius) => cl.radius = radius;
+    public void ResetColliderRadius() => cl.radius = defaultColliderRadius;
 
     public void SetSpeed(float max, float accel, float decel, float gravity, int rotationMult)
     {
@@ -157,7 +188,7 @@ public class PlayerController : MonoBehaviour
         c_movement = StartCoroutine(C_Movement(gatedDir));*/
         this.gatedDir = gatedDir;
         this.ungatedDir = ungatedDir;
-        modelAnim.SetInteger("InputXZ", Mathf.RoundToInt(this.ungatedDir.magnitude));
+        modelAnim.SetInteger("InputXZ", Mathf.FloorToInt(this.ungatedDir.magnitude + .99f));
     }
 
     public float multiplier = 1;
@@ -232,7 +263,7 @@ public class PlayerController : MonoBehaviour
 
     private void CameraOrientation()
     {
-        orientation.transform.localRotation = Quaternion.Euler(0, playerCam.transform.localRotation.eulerAngles.y, 0);
+        orientation.transform.localRotation = Quaternion.Euler(0, Camera.main.transform.localRotation.eulerAngles.y, 0);
     }
 
     // Find the velocity relative to where the player is looking
@@ -269,6 +300,7 @@ public class PlayerController : MonoBehaviour
             p = hit.GetContact(0);
             if (p.normal.y < 0.5f) contactingWall = true;
             Debug.DrawRay(p.point, p.normal, Color.red, 1f);
+            Debug.Log(hit.gameObject.name);
         }
     }
 

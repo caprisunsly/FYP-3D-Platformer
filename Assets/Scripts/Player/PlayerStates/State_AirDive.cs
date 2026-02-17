@@ -25,12 +25,12 @@ public class State_AirDive : Base_State
         ledgeData = new LedgeCastData(pc, ledgeHeight, ledgeSnapDistance, minimumHeightFromGround);
         c_diving = CoroutineRunner.Instance.StartCoroutine(C_Diving());
         pc.divesRemaining--;
-        if (pc.canDoubleJump)
+/*        if (pc.canDoubleJump)
         {
             pc.jumpsRemaining = 1;
             pc.canJump = true;
             pc.canDoubleJump = false;
-        }
+        }*/
         jumpAttempted = false;
         swipeAttempted = false;
     }
@@ -48,7 +48,7 @@ public class State_AirDive : Base_State
         Vector3 oldvel = pc.rb.linearVelocity;
         pc.rb.linearVelocity = Vector3.zero;
 
-        while (time < diveDelay) //gives the player a moment to react to the dive input
+        while (time < diveDelay) //gives the player a moment to react to the dive input but stays on fixed update loop.
         {
             time += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
@@ -114,8 +114,8 @@ public class LedgeCast : MonoBehaviour
 
         if (direction.magnitude < 0.1f) return false;
 
-        //if there is no ground in front of the player to the left or right (to fill edge cases) so return
-        if (!Physics.Raycast(data.ledgeDetection.position, forwardRay, data.distance, data.whatIsGround)) 
+        //if there is no ground in front of the player so return. also ignores trigger colliders.
+        if (!Physics.Raycast(data.ledgeDetection.position, forwardRay, data.distance, data.whatIsGround, QueryTriggerInteraction.Ignore)) 
             return false;
 
         //if there is ground a set amount above the first ray, then we arent at the top of the wall, so return

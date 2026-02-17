@@ -19,6 +19,7 @@ public class PlayerCamLookTarget : MonoBehaviour
     private void Start()
     {
         IAController = CMFollow.GetComponent<CinemachineInputAxisController>();
+        transform.parent = null;
     }
 
     private void OnEnable()
