@@ -23,6 +23,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     public static event Action<int> OnHealthChange;
     public static event Action OnPlayerDied;
+    public static event Action<bool> HealthAtMax;
 
     private void OnEnable()
     {
@@ -41,7 +42,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         sm = GetComponent<PlayerStateManager>();
 
         curHealth = CutsceneManager.instance.hud.GetCurHealth();
-        if (curHealth != 0) return;
+        if (curHealth != 0)
+        {
+            HealthAtMax?.Invoke(true);
+            return;
+        }
+        HealthAtMax?.Invoke(false);
         curHealth = maxHealth;
         OnHealthChange?.Invoke(curHealth);
     }
@@ -54,25 +60,33 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             return;
         }
 
-        if (invincible) return;
-        invincible = true;
-        StartCoroutine(C_Invincibility());
+        //if the player was at max health before the damage
+        if (curHealth == maxHealth) HealthAtMax?.Invoke(false);
 
-        curHealth -= damage;
-
+        //if damaged, make the player invincible and make them enter the damaged state
         if (damage > 0)
         {
-            Debug.Log("took damage");
+            if (invincible) return;
+            invincible = true;
+            StartCoroutine(C_Invincibility());
             pc.knockbackDir = new Vector3(transform.position.x - instigator.position.x, 0, transform.position.z - instigator.position.z).normalized;
             sm.ChangeState(sm.stateDamaged);
         }
 
+        curHealth -= damage;
+
+        //if the player is dead
         if (curHealth <= 0)
         {
             curHealth = 0;
             StartCoroutine(PlayerDeath());
         }
-        if (curHealth >= maxHealth) curHealth = maxHealth;
+        //if the player would be at or equal to max health
+        if (curHealth >= maxHealth)
+        {
+            curHealth = maxHealth;
+            HealthAtMax?.Invoke(true);
+        }
 
         OnHealthChange?.Invoke(curHealth);
     }

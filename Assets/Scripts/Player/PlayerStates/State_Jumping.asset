@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <transitionTime>k__BackingField: 0
   <speedMax>k__BackingField: 12
-  <speedAccel>k__BackingField: 200
-  <speedDecel>k__BackingField: 0
+  <speedAccel>k__BackingField: 600
+  <speedDecel>k__BackingField: 20
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
   <upgradeType>k__BackingField: 0
   jumpForce: 180
   jumpCancelForce: 100
   jumpBufferTime: 0.2
-  ledgeHeight: 1
+  ledgeHeight: 2
   ledgeSnapDistance: 0.8
   minimumHeightFromGround: 1.5

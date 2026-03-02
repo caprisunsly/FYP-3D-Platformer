@@ -57,7 +57,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f7e0e5ceb653ca44cb1235b1705c9307, type: 2}
+  - {fileID: 2100000, guid: 4b9932738955ae649addedfec6097527, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5062,3 +5062,6 @@ MonoBehaviour:
   pickupName: Default Name
   pickupDesc: YOU GOT A KEY!
   mesh: {fileID: 0}
+  mr: {fileID: 7092863047966291728}
+  inactive: {fileID: 2100000, guid: 4b9932738955ae649addedfec6097527, type: 2}
+  active: {fileID: 2100000, guid: f7e0e5ceb653ca44cb1235b1705c9307, type: 2}

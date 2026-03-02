@@ -39,7 +39,8 @@ public class State_Jumping : Base_State
 
     public override void JumpStart()
     {
-        if (pc.canDive)
+        //check the distance from the ground, if less than a minimum then return
+        if (pc.canDive && !Physics.Raycast(pc.transform.position, Vector3.down, pc.minGroundDistance))
         {
             pc.canDive = false;
             sm.ChangeState(sm.stateAirDive);
@@ -60,17 +61,15 @@ public class State_Jumping : Base_State
             startFrames--;
             return;
         }
-        if (LedgeCast.Check(ledgeData, pc.ungatedDir) && pc.rb.linearVelocity.y < 3) sm.ChangeState(sm.stateLedgeHang);
+        if (LedgeCast.Check(ledgeData, pc.ungatedDir) && pc.rb.linearVelocity.y < 3)
+        {
+            sm.ChangeState(sm.stateLedgeHang);
+        }
         if (pc.rb.linearVelocity.y > 0) return;
         if (fall) return;
         fall = true;
 
         sm.ChangeState(sm.stateFalling);
-    }
-
-    void CheckWallHang()
-    {
-        if (pc.rb.linearVelocity.y < 3) return;
     }
 
     private void Jump()

@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public bool canDive { get; set; }
 
     [SerializeField] float maxSlopeAngle = 35f;
+    [field: SerializeField] public float minGroundDistance { get; private set; }
     public Vector3 slopeDirection { get; private set; } = Vector3.up;
     [SerializeField] float characterRotationSpeed;
 
@@ -204,7 +205,7 @@ public class PlayerController : MonoBehaviour
             /*            CounterMovement(dir.x, dir.y, mag);
             */
             //If speed is larger than maxspeed, cancel out the input so player doesn't go over max speed
-            Vector2 appliedDir = ungatedDir;
+            Vector2 appliedDir = ungatedDir.normalized;
 
             if (ungatedDir.x > 0 && mag.x > curSpeedMax) appliedDir.x = 0;
             if (ungatedDir.x < 0 && mag.x < -curSpeedMax) appliedDir.x = 0;
@@ -215,7 +216,7 @@ public class PlayerController : MonoBehaviour
             Vector3 movement = Vector3.ClampMagnitude(orientation.transform.forward * appliedDir.y + orientation.transform.right * appliedDir.x, 1);
 
             //Apply forces to move player
-            rb.AddForce(Vector3.ProjectOnPlane(movement, slopeDirection) * curSpeedAccel * multiplier);
+            rb.AddForce(Vector3.ProjectOnPlane(movement.normalized, slopeDirection) * curSpeedAccel * multiplier);
 
 /*            if (dir == Vector2.zero && rb.linearVelocity.magnitude == 0) moving = false;
 */            yield return new WaitForFixedUpdate();
@@ -230,7 +231,7 @@ public class PlayerController : MonoBehaviour
         if (movement.magnitude < 0.05f) movement = playerModel.forward;
         playerModel.rotation = Quaternion.Slerp(playerModel.rotation, Quaternion.LookRotation(Vector3.ProjectOnPlane(movement, slopeDirection)), characterRotationSpeed * doRotate);
         //slow the player down if they are going above max speed (prevents diagonal movement at high speed)
-        if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > curSpeedMax && grounded)
+        if (Mathf.Abs(rb.linearVelocity.x) + Mathf.Abs(rb.linearVelocity.z) > curSpeedMax)
         {
             rb.AddForce(curSpeedAccel * new Vector3(-rb.linearVelocity.normalized.x, 0, -rb.linearVelocity.normalized.z));
         }
@@ -300,8 +301,8 @@ public class PlayerController : MonoBehaviour
             p = hit.GetContact(0);
             if (p.normal.y < 0.5f) contactingWall = true;
             Debug.DrawRay(p.point, p.normal, Color.red, 1f);
-            Debug.Log(hit.gameObject.name);
-        }
+/*            Debug.Log(hit.gameObject.name);
+*/        }
     }
 
     IEnumerator C_NegateSlopeSlide()
@@ -362,8 +363,8 @@ public class PlayerController : MonoBehaviour
                     jumpsRemaining = totalJumps;
                     EnterGrounded?.Invoke();
                     canJump = true;
-                    canDoubleJump = true;
-                    canDive = true;
+/*                    canDoubleJump = true;
+*/                    canDive = true;
                     jumpedFrom = 0;
                     divesRemaining = 1;
                     airSwipesRemaining = totalAirSwipes;
@@ -388,5 +389,6 @@ public class PlayerController : MonoBehaviour
         modelAnim.SetBool("Standing", false);
         grounded = false;
         ExitGrounded.Invoke();
+        canJump = false;
     }
 }

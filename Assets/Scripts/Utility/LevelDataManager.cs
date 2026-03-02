@@ -6,6 +6,7 @@ public struct QuestData
 {
     public string name;
     public List<GameObject> objects;
+    public bool enablesOtherQuest;
 }
 
 public class LevelDataManager : MonoBehaviour

@@ -70,8 +70,10 @@ public class State_TailSwipe : Base_State
 
     public override void JumpStart()
     {
-        if (pc.canDive == false) return;
-        pc.canDive = false;
-        sm.ChangeState(sm.stateAirDive);
+        if (pc.canDive && !Physics.Raycast(pc.transform.position, Vector3.down, pc.minGroundDistance))
+        {
+            pc.canDive = false;
+            sm.ChangeState(sm.stateAirDive);
+        }
     }
 }

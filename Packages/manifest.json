@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.gator-dragon-games.jigglephysics": "https://github.com/naelstrof/JigglePhysics.git#upm",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.navigation": "2.0.8",
     "com.unity.cinemachine": "3.1.5",

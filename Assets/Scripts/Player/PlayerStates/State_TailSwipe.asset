@@ -18,8 +18,9 @@ MonoBehaviour:
   <speedDecel>k__BackingField: 20
   <gravityMult>k__BackingField: 0.9
   <shouldRotate>k__BackingField: 1
+  <upgradeType>k__BackingField: 0
   swipeTime: 0.3
   swipeDelay: 0.05
   minimumHeightFromGround: 0
   minimumWallAngle: 40
-  colliderRadius: 0.8
+  colliderRadius: 1

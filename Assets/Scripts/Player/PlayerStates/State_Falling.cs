@@ -36,7 +36,10 @@ public class State_Falling : Base_State
     public override void StateFixedUpdate()
     {
         if (pc.grounded) sm.ChangeState(sm.stateStanding); //prevents edge case where players jump but get stuck on geometry and don't leave the ground
-        if (LedgeCast.Check(ledgeData, pc.ungatedDir)) sm.ChangeState(sm.stateLedgeHang);
+        if (LedgeCast.Check(ledgeData, pc.ungatedDir))
+        {
+             sm.ChangeState(sm.stateLedgeHang);
+        }
         if (pc.floorClose) pc.multiplier = 0.2f;
     }
 
@@ -45,12 +48,15 @@ public class State_Falling : Base_State
         //check the player's distance from the ground
         //if there is ground within a certain distance, buffer a jump
         //otherwise perform an air dive
+
+        if (!pc.canJump) pc.jumpsRemaining = 0;
+
         if (pc.jumpsRemaining > 0)
         {
             sm.ChangeState(sm.stateJumping);
             return;
         }
-        if (pc.canDive)
+        if (pc.canDive && !Physics.Raycast(pc.transform.position, Vector3.down, pc.minGroundDistance))
         {
             pc.canDive = false;
             sm.ChangeState(sm.stateAirDive);

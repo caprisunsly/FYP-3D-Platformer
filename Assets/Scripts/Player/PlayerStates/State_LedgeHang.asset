@@ -18,7 +18,8 @@ MonoBehaviour:
   <speedDecel>k__BackingField: 0
   <gravityMult>k__BackingField: 0
   <shouldRotate>k__BackingField: 0
-  ledgeHeight: 1
+  <upgradeType>k__BackingField: 0
+  ledgeHeight: 2
   ledgeSnapDistance: 0.8
   yOffsetFromLedge: -1
   jumpForce: 100

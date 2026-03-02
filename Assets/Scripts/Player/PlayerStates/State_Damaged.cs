@@ -56,9 +56,11 @@ public class State_Damaged : Base_State
         }
         else
         {
-            if (pc.canDive == false) return;
-            diveAttempted = true;
-            swipeAttempted = false;
+            if (pc.canDive && !Physics.Raycast(pc.transform.position, Vector3.down, pc.minGroundDistance))
+            {
+                diveAttempted = true;
+                swipeAttempted = false;
+            }
         }
     }
 

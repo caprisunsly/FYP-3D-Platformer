@@ -18,10 +18,11 @@ MonoBehaviour:
   <speedDecel>k__BackingField: -1
   <gravityMult>k__BackingField: 1
   <shouldRotate>k__BackingField: 1
+  <upgradeType>k__BackingField: 0
   diveForceH: 125
   diveForceV: 100
-  diveTime: 0.4
+  diveTime: 0.1
   diveDelay: 0.03
-  ledgeHeight: 1
+  ledgeHeight: 2
   ledgeSnapDistance: 0.8
   minimumHeightFromGround: 1.5

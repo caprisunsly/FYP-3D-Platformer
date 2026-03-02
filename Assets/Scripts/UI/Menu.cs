@@ -42,7 +42,7 @@ public class Menu : MonoBehaviour
 
     public void Respawn()
     {
-        CutsceneManager.instance.LevelTransition(SceneManager.GetActiveScene().name, -2);
+        CutsceneManager.instance.LevelTransition(SceneManager.GetActiveScene().name, -1);
     }
 
     public void FadeCanvas(float val)

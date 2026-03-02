@@ -60,6 +60,7 @@ public class CutsceneManager : MonoBehaviour
         SceneManager.sceneLoaded += SceneLoaded;
         Upgrade.OnCollectUpgrade += CollectUpgrade;
         PlayerHealth.OnPlayerDied += DeathMenu;
+        GameEndMenuEvent.GameEndMenu += GameWinMenu;
     }
 
     private void OnDisable()
@@ -69,6 +70,7 @@ public class CutsceneManager : MonoBehaviour
         SceneManager.sceneLoaded -= SceneLoaded;
         Upgrade.OnCollectUpgrade -= CollectUpgrade;
         PlayerHealth.OnPlayerDied -= DeathMenu;
+        GameEndMenuEvent.GameEndMenu -= GameWinMenu;
     }
 
     private void Start()
